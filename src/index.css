@@ -33,7 +33,9 @@
 }
 
 @layer base {
-  
+  #root {
+    @apply min-h-screen;
+  }
 
   h1 {
     @apply text-4xl font-bold;
