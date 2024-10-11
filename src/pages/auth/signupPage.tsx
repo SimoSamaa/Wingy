@@ -75,11 +75,12 @@ const SignupPage = () => {
       console.log('Signup form submitted', signupForm);
       // => send your data to state management
       setSignupForm({ email: '', password: '', confirmPassword: '' });
+      navigate('/login');
     } catch (err) {
       console.error('Error from server', err);
     } finally {
       setSubmitForm(false);
-      navigate('/login');
+      // RESET LOADING
     }
   };
 

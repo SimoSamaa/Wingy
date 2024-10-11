@@ -34,7 +34,7 @@ const App = () => {
         {/* Redirect to login if not authenticated */}
         <Route
           path="/"
-          element={!isAuthenticated ? <Navigate to="/login" /> : <Navigate to="/dashboard/page-one" />} />
+          element={!isAuthenticated ? <Navigate to="/login" replace /> : <Navigate to="/dashboard/page-one" replace />} />
 
         {/* AUTH PAGES */}
         <Route path="/" element={<AuthRoot />}>

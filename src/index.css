@@ -37,7 +37,7 @@
     @apply min-h-screen;
   }
 
-  h1 {
-    @apply text-4xl font-bold;
+  .navigation a.active {
+    @apply bg-accent text-foreground;
   }
 }
