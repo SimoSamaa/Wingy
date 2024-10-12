@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui//label';
 import { Input } from '@/components/ui/input';
 import PasswordButton from '@/components/ui/PasswordButton';
+import router from '@/router';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -69,11 +70,11 @@ const LoginPage = () => {
       console.log('Login form submitted', loginForm);
       // => send your data to state management
       setLoginForm({ email: '', password: '' });
+      navigate(router.dashboardRoot.children.home.path);
     } catch (err) {
       console.error('Error from server', err);
     } finally {
       setSubmitForm(false);
-      navigate('/dashboard/page-one');
     }
   };
 
@@ -129,7 +130,7 @@ const LoginPage = () => {
         </div>
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
-          <Link to='/signup' className="underline">
+          <Link to={router.authRoot.Children.signup.path} className="underline">
             Sign up
           </Link>
         </div>

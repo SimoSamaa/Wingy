@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui//label';
 import { Input } from '@/components/ui/input';
 import PasswordButton from '@/components/ui/PasswordButton';
+import router from '@/router';
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -75,7 +76,7 @@ const SignupPage = () => {
       console.log('Signup form submitted', signupForm);
       // => send your data to state management
       setSignupForm({ email: '', password: '', confirmPassword: '' });
-      navigate('/login');
+      navigate(router.authRoot.Children.login.path);
     } catch (err) {
       console.error('Error from server', err);
     } finally {
@@ -144,7 +145,7 @@ const SignupPage = () => {
         </div>
         <div className="mt-4 text-center text-sm">
           Already have an account?{" "}
-          <Link to='/login' className="underline">
+          <Link to={router.authRoot.Children.login.path} className="underline">
             Login
           </Link>
         </div>

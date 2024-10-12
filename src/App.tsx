@@ -1,15 +1,9 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Suspense } from 'react';
+import router from '@/router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/index';
 import { useEffect } from 'react';
-
-import AuthRoot from '@/pages/auth/AuthRoot';
-import Login from '@/pages/auth/LoginPage';
-import Signup from '@/pages/auth/SignupPage';
-import Dashboard from '@/pages/dashboard/Dashboard';
-import NotFoundPage from '@/pages/NotFoundPage';
-import PageOne from '@/pages/dashboard/dashboardPages/PageOne';
-import PageTwo from '@/pages/dashboard/dashboardPages/PageTwo';
 
 const App = () => {
   const location = useLocation();
@@ -17,8 +11,13 @@ const App = () => {
 
   // Set page title based on the current route
   useEffect(() => {
-    const pagesPath = ['/login', '/signup', '/dashboard/page-one', '/dashboard/page-two'];
-    const pageTitle = ['Login', 'Signup', 'Page One', 'Page Two'];
+    const pagesPath = [
+      router.authRoot.Children.login.path,
+      router.authRoot.Children.signup.path,
+      router.dashboardRoot.children.home.path,
+      router.dashboardRoot.children.products.path
+    ];
+    const pageTitle = ['Login', 'Signup', 'Home', 'Products'];
     const pageIndex = pagesPath.indexOf(location.pathname);
 
     if (pageIndex !== -1) {
@@ -30,27 +29,44 @@ const App = () => {
 
   return (
     <>
-      <Routes>
-        {/* Redirect to login if not authenticated */}
-        <Route
-          path="/"
-          element={!isAuthenticated ? <Navigate to="/login" replace /> : <Navigate to="/dashboard/page-one" replace />} />
+      <Suspense fallback={<div>Loading...</div>} >
+        <Routes>
+          {/* Redirect to login if not authenticated */}
+          <Route
+            path="/"
+            element={
+              !isAuthenticated
+                ? <Navigate to={router.authRoot.Children.login.path} replace />
+                : <Navigate to={router.dashboardRoot.children.home.path} replace />} />
 
-        {/* AUTH PAGES */}
-        <Route path="/" element={<AuthRoot />}>
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
-        </Route>
+          {/* AUTH PAGES */}
+          <Route
+            path={router.authRoot.path}
+            element={<router.authRoot.Ele />}>
+            <Route
+              path={router.authRoot.Children.login.path}
+              element={<router.authRoot.Children.login.Ele />} />
+            <Route
+              path={router.authRoot.Children.signup.path}
+              element={<router.authRoot.Children.signup.Ele />} />
+          </Route>
 
-        {/* DASHBOARD PAGES */}
-        <Route path='/dashboard' element={<Dashboard />}>
-          <Route path='page-one' element={<PageOne />} />
-          <Route path='page-two' element={<PageTwo />} />
-        </Route>
+          {/* DASHBOARD PAGES */}
+          <Route
+            path={router.dashboardRoot.path}
+            element={<router.dashboardRoot.Ele />}>
+            <Route
+              path={router.dashboardRoot.children.home.path}
+              element={<router.dashboardRoot.children.home.Ele />} />
+            <Route
+              path={router.dashboardRoot.children.products.path}
+              element={<router.dashboardRoot.children.products.Ele />} />
+          </Route>
 
-        {/* 404 PAGE */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          {/* 404 PAGE */}
+          <Route path={router.notFound.path} element={<router.notFound.Ele />} />
+        </Routes>
+      </Suspense>
     </>
   );
 };

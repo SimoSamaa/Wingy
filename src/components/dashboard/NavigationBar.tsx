@@ -33,32 +33,32 @@ const NavigationBar = () => {
             className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
           >
             <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
-            {/* <span className="sr-only">Acme Inc</span> */}
+            <span className="sr-only">Wingy</span>
           </NavLink>
           <Tooltip>
             <TooltipTrigger asChild>
               <NavLink
-                to="/dashboard/page-one"
+                to="/dashboard/home"
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                 end
               >
                 <Grid3x3 className="h-5 w-5" />
-                <span className="sr-only">Dashboard</span>
+                <span className="sr-only">Home</span>
               </NavLink>
             </TooltipTrigger>
-            <TooltipContent side="right">Dashboard</TooltipContent>
+            <TooltipContent side="right">Home</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <NavLink
-                to="/dashboard/page-two"
+                to="/dashboard/products"
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
                 <List className="h-5 w-5" />
-                <span className="sr-only">Orders</span>
+                <span className="sr-only">Products</span>
               </NavLink>
             </TooltipTrigger>
-            <TooltipContent side="right">Orders</TooltipContent>
+            <TooltipContent side="right">Products</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -129,3 +129,6 @@ const NavigationBar = () => {
 };
 
 export default NavigationBar;
+
+// page one => home
+// page two => products
