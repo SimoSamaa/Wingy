@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { AtSign, Facebook } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Link } from 'react-router-dom';
@@ -7,38 +8,30 @@ import { Label } from '@/components/ui//label';
 import { Input } from '@/components/ui/input';
 import PasswordButton from '@/components/ui/PasswordButton';
 import router from '@/router';
+import helpers from '@/lib/helpers';
+
+interface LoginFormState {
+  email: string;
+  password: string;
+}
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [useHandleChange] = helpers();
   const passwordRef = useRef<HTMLInputElement>(null);
-  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [loginForm, setLoginForm] = useState<LoginFormState>({ email: '', password: '' });
   const [errorsForm, setErrorsForm] = useState<Record<string, string>>({});
   const [submitForm, setSubmitForm] = useState(false);
   // const [isLoading, setLoading] = useState(false);
+
   const loginSchema = z.object({
     email: z.string()
       .email({ message: 'Invalid email address' })
       .nonempty({ message: 'Email is required' }),
     password: z.string()
       .min(8, { message: 'Password must be at least 8 characters long' })
-      .nonempty({ message: 'Password required' })
+      .nonempty({ message: 'Password is required' })
   });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setLoginForm((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-
-    // Clear the error message when the user corrects the input
-    if (errorsForm[id]) {
-      setErrorsForm((prev) => ({
-        ...prev,
-        [id]: '',
-      }));
-    }
-  };
 
   const loginFormValidation = () => {
     setSubmitForm(true);
@@ -74,7 +67,7 @@ const LoginPage = () => {
     } catch (err) {
       console.error('Error from server', err);
     } finally {
-      setSubmitForm(false);
+      // 
     }
   };
 
@@ -95,7 +88,7 @@ const LoginPage = () => {
               type="text"
               placeholder="m@example.com"
               value={loginForm.email}
-              onChange={handleChange}
+              onChange={useHandleChange<LoginFormState>(setLoginForm, errorsForm, setErrorsForm)}
               error={!!errorsForm.email}
             />
             {errorsForm.email && <p className='text-xs text-red-500'>{errorsForm.email}</p>}
@@ -117,7 +110,7 @@ const LoginPage = () => {
                 ref={passwordRef}
                 placeholder="********"
                 value={loginForm.password}
-                onChange={handleChange}
+                onChange={useHandleChange<LoginFormState>(setLoginForm, errorsForm, setErrorsForm)}
                 error={!!errorsForm.password}
               />
               <PasswordButton ele={passwordRef} />
@@ -126,6 +119,26 @@ const LoginPage = () => {
           </div>
           <Button type="submit" className="w-full">
             Login
+          </Button>
+        </div>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or login with
+            </span>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Button variant="outline" type="button">
+            <Facebook className="mr-2 h-4 w-4" />
+            Facebook
+          </Button>
+          <Button variant="outline" type="button">
+            <AtSign className="mr-2 h-4 w-4" />
+            Google
           </Button>
         </div>
         <div className="mt-4 text-center text-sm">

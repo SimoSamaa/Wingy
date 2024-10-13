@@ -1,18 +1,28 @@
 import React, { useRef, useState } from 'react';
+import { AtSign, Facebook, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui//label';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import PasswordButton from '@/components/ui/PasswordButton';
 import router from '@/router';
+import helpers from '@/lib/helpers';
+
+interface SignupFormState {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 const SignupPage = () => {
   const navigate = useNavigate();
+  const [useHandleChange] = helpers();
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
-  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '' });
+  const [signupForm, setSignupForm] = useState<SignupFormState>({ email: '', password: '', confirmPassword: '' });
   const [errorsForm, setErrorsForm] = useState<Record<string, string>>({});
   const [submitForm, setSubmitForm] = useState(false);
   // const [isLoading, setLoading] = useState(false);
@@ -29,22 +39,6 @@ const SignupPage = () => {
     message: 'Passwords do not match',
     path: ['confirmPassword']
   });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setSignupForm((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-
-    // Clear the error message when the user corrects the input
-    if (errorsForm[id]) {
-      setErrorsForm((prev) => ({
-        ...prev,
-        [id]: '',
-      }));
-    }
-  };
 
   const loginFormValidation = () => {
     setSubmitForm(true);
@@ -75,12 +69,13 @@ const SignupPage = () => {
     try {
       console.log('Signup form submitted', signupForm);
       // => send your data to state management
-      setSignupForm({ email: '', password: '', confirmPassword: '' });
-      navigate(router.authRoot.Children.login.path);
+      setSignupForm(() => ({ email: '', password: '', confirmPassword: '' }));
+      setTimeout(() => {
+        navigate(router.authRoot.Children.login.path);
+      }, 3000);
     } catch (err) {
       console.error('Error from server', err);
     } finally {
-      setSubmitForm(false);
       // RESET LOADING
     }
   };
@@ -94,6 +89,15 @@ const SignupPage = () => {
             Create an account to get started
           </p>
         </div>
+        {submitForm && (
+          <Alert className="bg-green-100 border-green-500">
+            <CheckCircle className="h-4 w-4 !text-green-600" />
+            <AlertTitle className="text-green-800">Sign Up Successful!</AlertTitle>
+            <AlertDescription className="text-green-700">
+              Your account has been created successfully. Welcome to Wingy!
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
@@ -101,7 +105,8 @@ const SignupPage = () => {
               id="email"
               type="text"
               placeholder="m@example.com"
-              onChange={handleChange}
+              value={signupForm.email}
+              onChange={useHandleChange<SignupFormState>(setSignupForm, errorsForm, setErrorsForm)}
               error={!!errorsForm.email}
             />
             {errorsForm.email && <p className='text-xs text-red-500'>{errorsForm.email}</p>}
@@ -116,7 +121,8 @@ const SignupPage = () => {
                 type="password"
                 ref={passwordRef}
                 placeholder='********'
-                onChange={handleChange}
+                value={signupForm.password}
+                onChange={useHandleChange<SignupFormState>(setSignupForm, errorsForm, setErrorsForm)}
                 error={!!errorsForm.password}
               />
               <PasswordButton ele={passwordRef} />
@@ -132,7 +138,8 @@ const SignupPage = () => {
                 type="password"
                 ref={confirmPasswordRef}
                 placeholder='********'
-                onChange={handleChange}
+                value={signupForm.confirmPassword}
+                onChange={useHandleChange<SignupFormState>(setSignupForm, errorsForm, setErrorsForm)}
                 error={!!errorsForm.confirmPassword}
               />
               <PasswordButton ele={confirmPasswordRef} />
@@ -142,6 +149,27 @@ const SignupPage = () => {
           <Button type="submit" className="w-full">
             Sign Up
           </Button>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Button variant="outline" type="button">
+              <Facebook className="mr-2 h-4 w-4" />
+              Facebook
+            </Button>
+            <Button variant="outline" type="button">
+              <AtSign className="mr-2 h-4 w-4" />
+              Google
+            </Button>
+          </div>
         </div>
         <div className="mt-4 text-center text-sm">
           Already have an account?{" "}

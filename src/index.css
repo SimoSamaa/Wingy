@@ -36,8 +36,12 @@
   #root {
     @apply min-h-screen;
   }
+}
 
-  .navigation a.active {
-    @apply bg-accent text-foreground;
-  }
+.dashboard_navigation a.active {
+  @apply bg-accent text-foreground;
+}
+
+.dashboard_navigation-mobile a.active  {
+  @apply text-foreground;
 }

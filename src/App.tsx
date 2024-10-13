@@ -29,7 +29,9 @@ const App = () => {
 
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>} >
+      <Suspense fallback={<div className='h-screen grid place-content-center'>
+        <div className="animate-spin rounded-full size-[150px] border-t-4 border-b-4 border-primary"></div>
+      </div>} >
         <Routes>
           {/* Redirect to login if not authenticated */}
           <Route
