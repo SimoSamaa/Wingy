@@ -110,6 +110,3 @@ const NavigationBar = () => {
 };
 
 export default NavigationBar;
-
-// page one => home
-// page two => products

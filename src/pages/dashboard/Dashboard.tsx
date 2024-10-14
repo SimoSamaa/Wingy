@@ -7,9 +7,9 @@ const DashboardRoot = () => {
     <main className='flex flex-col sm:gap-4 sm:py-4 sm:pl-14 min-h-screen bg-muted/40'>
       <DashboardHeader />
       <NavigationBar />
-      <div className='flex flex-col sm:gap-4 sm:py-4 sm:pl-14'>
+      <section className='p-4 sm:px-6 sm:py-0'>
         <Outlet />
-      </div>
+      </section>
     </main>
   );
 };
