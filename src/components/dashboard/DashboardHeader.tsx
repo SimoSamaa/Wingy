@@ -1,4 +1,4 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -33,6 +33,10 @@ import router from '@/router';
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
+  const locations = useLocation();
+
+  const pagePath = locations.pathname;
+  const currentPagePath = pagePath.split('/').pop();
 
   const logoutHandler = () => {
     navigate(router.authRoot.Children.login.path);
@@ -99,19 +103,13 @@ const DashboardHeader = () => {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="#">Dashboard</Link>
+              <Link to={router.dashboardRoot.children.home.path}>Dashboard</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="#">Home</Link>
-            </BreadcrumbLink>
+            <BreadcrumbPage>{currentPagePath}</BreadcrumbPage>
           </BreadcrumbItem>
-          {/* <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Recent Orders</BreadcrumbPage>
-          </BreadcrumbItem> */}
         </BreadcrumbList>
       </Breadcrumb>
       <div className="relative ml-auto flex-1 md:grow-0">
