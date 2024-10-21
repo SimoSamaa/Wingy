@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './auth';
 import ratingReducer from './starRatings';
-import ordersReducer from './orders';
+import ordersReducer from './orders/orderSlice';
 
 const store = configureStore({
   reducer: {

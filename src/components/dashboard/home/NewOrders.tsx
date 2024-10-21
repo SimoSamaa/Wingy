@@ -6,7 +6,7 @@ const NewOrders = () => {
   const newOrdersToday = useSelector((state: RootState) => state.orders.ordersInfo.newOrdersToday);
 
   return (
-    <Card>
+    <Card className=''>
       <CardHeader>
         <CardDescription>New Orders Today</CardDescription>
         <CardTitle className="text-4xl">{newOrdersToday}</CardTitle>

@@ -32,7 +32,7 @@ const Rating = () => {
   const getProgressValue = (count: number) => (count / rating.totalReviews) * 100;
 
   return (
-    <Card className='p-6 grid gap-2'>
+    <Card className='px-6 py-4 grid gap-2'>
       <div className='flex items-center gap-2 mx-auto w-fit'>
         <CardTitle className='font-bold'>{averageRating}</CardTitle>
         <Star className='text-yellow-500 size-[30px] fill-yellow-500' />

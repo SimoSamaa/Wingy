@@ -1,57 +1,84 @@
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/store/index';
+import type Order from '@/types/orderTypes';
 import courier from '@/assets/courier.png';
-import { Card } from '@/components/ui/card';
+import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CreditCard, User } from 'lucide-react';
-import { ordersActions } from '@/store/orders';
+import { CreditCard, User, PackageX } from 'lucide-react';
+import OrdersButtons from './includes/OrdersButtons';
 
-const CurrentOrders = () => {
-  const dispatch = useDispatch();
-  const orders = useSelector((state: RootState) => state.orders.orders);
+interface Props {
+  orders: Order[];
+  loading: boolean;
+  selectedOrderId: string | null;
+  onSelectOrder: (id: string) => void;
+  onLoadOrders: () => Promise<void>;
+  onChangeColorStatus: (status: string, style: string) => string;
+  pagination: { currentPage: number, setCurrentPage: (page: number) => void; };
+}
 
-  const ordersStatus = (status: string, style: string) => {
-    if (style === 'text') {
-      return status === 'Prepared' ? 'text-green-500' : status === 'Preparing' ? 'text-yellow-500' : status === 'Pending' ? 'text-red-500' : 'text-blue-500';
-    }
-
-    if (style === 'bg') {
-      return status === 'Prepared' ? 'bg-green-500' : status === 'Preparing' ? 'bg-yellow-500' : status === 'Pending' ? 'bg-red-500' : 'bg-blue-500';
-    }
-  };
-
-  const declineOrderHandler = (id: string) => {
-    dispatch(ordersActions.declineOrder({ id }));
-  };
-
-  const acceptOrderHandler = (id: string) => {
-    dispatch(ordersActions.acceptOrder({ id, status: 'Preparing' }));
-  };
-
-  const preparedOrderHandler = (id: string) => {
-    dispatch(ordersActions.preparedOrder({ id, status: 'Prepared' }));
-  };
-
-  const pickedupOrderHandler = (id: string) => {
-    dispatch(ordersActions.preparedOrder({ id, status: 'Picked up' }));
-  };
+const CurrentOrders: React.FC<Props> = ({
+  orders,
+  loading,
+  selectedOrderId,
+  onSelectOrder,
+  onLoadOrders,
+  onChangeColorStatus,
+  pagination,
+}) => {
+  const totalItems = useSelector((state: RootState) => state.orders.totalItems);
+  const perPage = 4;
+  const totalPages = Math.ceil(totalItems / perPage); // Calculate total pages
 
   return (
-    <>
-      {/* <Card className='my-5 px-6 py-4'>
-        <h1 className='font-semibold'>Current Orders</h1>
-      </Card> */}
-      <ul className='grid gap-5 mt-5'>
-        {orders.map((order, ind) => (
-          <li key={ind}>
-            <Card>
-              <div className='flex items-center justify-between py-[10px] px-4'>
+    <Card className='px-5 pb-4 mt-5 min-h-[45vh] relative'>
+      <div className='py-[14px] flex justify-between'>
+        <CardTitle>Current Orders</CardTitle>
+        {/* CURRENT ORDERS PAGINATION */}
+        <div className='flex gap-2'>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              className={
+                `border rounded font-semibold grid place-items-center text-sm size-[25px] hover:bg-accent transition-colors duration-300 ease-out
+                ${pagination.currentPage === index + 1 ? 'bg-accent' : ''}`
+              }
+              onClick={() => pagination.setCurrentPage(index + 1)}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </div>
+      </div>
+      {orders.length === 0 && !loading && (
+        <div className="flex flex-col items-center justify-center text-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <PackageX className="size-16 text-gray-400 mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No orders for now</h3>
+          <p className="text-gray-500 mb-4">When new orders come in, they will appear here.</p>
+          <Button onClick={onLoadOrders}>Refresh Orders</Button>
+        </div>
+      )}
+      {loading && (
+        <h1 className='text-3xl'>loading...</h1>
+      )}
+      {orders.length > 0 && !loading && (
+        <ul>
+          {orders.map((order) => (
+            <li
+              key={order.id}
+              onClick={() => onSelectOrder(order.id)}
+              className={
+                `px-4 border-t cursor-pointer transition-colors hover:bg-muted/50
+                ${selectedOrderId === order.id ? 'bg-accent' : ''}`
+              }>
+              <div className='flex items-center justify-between py-3'>
                 <div className='flex items-center'>
-                  <div className='px-4'>
+                  <div>
                     <img src={courier} alt='courier' className='size-7' />
                   </div>
-                  <div className='pr-4 border-r-[1px]'>
-                    <p className='font-semibold'>ID_ORDER #{ind + 1}</p>
+                  <div className='px-4 border-r-[1px] w-[135px]'>
+                    <p className='font-semibold'>ID_{order?.orderId}</p>
                     <p className='text-muted-foreground text-xs'>{order.date}</p>
                   </div>
                   <div className='pl-4'>
@@ -60,42 +87,24 @@ const CurrentOrders = () => {
                       {order.fullName}
                     </p>
                     <p className='text-muted-foreground text-xs flex gap-1 items-center'>
-                      <CreditCard size={16} strokeWidth={1.5} />
-                      {order.price}DH ({order.paymentMethod})
+                      <CreditCard className='size-4 stroke-[1.5] ml-[2px]' />
+                      {order.totalPrice}DH ({order.paymentMethod})
                     </p>
                   </div>
                 </div>
                 {/* STATUS ORDER */}
-                <div className={`flex font-semibold items-center gap-2 w-[91px] ${ordersStatus(order.status, 'text')}`}>
-                  <span className={`size-3 rounded-full ${ordersStatus(order.status, 'bg')}`}></span>
+                <div className={`flex font-semibold items-center gap-2 w-[91px] ${onChangeColorStatus(order.status, 'text')}`}>
+                  <span className={`size-3 rounded-full ${onChangeColorStatus(order.status, 'bg')}`}></span>
                   {order.status}
                 </div>
                 {/* ACTIONS */}
-                <div className='flex gap-4 w-[170.49px] [&_*]:w-full'>
-                  {/* Picked-up order */}
-                  {(order.status === 'Prepared' || order.status === 'Picked up') && (
-                    <Button className='!bg-black' disabled={order.status === 'Picked up'} onClick={() => pickedupOrderHandler(order.id)}>Mark as Picked-up</Button>
-                  )}
-
-                  {/* Preparing order */}
-                  {order.status === 'Preparing' && (
-                    <Button className='!bg-blue-500' onClick={() => preparedOrderHandler(order.id)}>Mark as Prepared</Button>
-                  )}
-
-                  {/* Pending order */}
-                  {order.status === 'Pending' && (
-                    <>
-                      <Button variant='destructive' onClick={() => declineOrderHandler(order.id)}>Decline</Button>
-                      <Button variant='success' onClick={() => acceptOrderHandler(order.id)}>Accept</Button>
-                    </>
-                  )}
-                </div>
+                <OrdersButtons payload={{ id: order.id, status: order.status }} />
               </div>
-            </Card>
-          </li>
-        ))}
-      </ul>
-    </>
+            </li>
+          ))}
+        </ul >
+      )}
+    </Card>
   );
 };
 
