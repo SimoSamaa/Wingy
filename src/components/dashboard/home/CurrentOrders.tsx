@@ -1,12 +1,11 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/index';
 import type Order from '@/types/orderTypes';
-import courier from '@/assets/courier.png';
+import courier from '@/assets/orders/courier.png';
 import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreditCard, User, PackageX } from 'lucide-react';
 import OrdersButtons from './includes/OrdersButtons';
+import OrdersPagination from './includes/OrdersPagination';
 
 interface Props {
   orders: Order[];
@@ -27,29 +26,12 @@ const CurrentOrders: React.FC<Props> = ({
   onChangeColorStatus,
   pagination,
 }) => {
-  const totalItems = useSelector((state: RootState) => state.orders.totalItems);
-  const perPage = 4;
-  const totalPages = Math.ceil(totalItems / perPage); // Calculate total pages
-
   return (
-    <Card className='px-5 pb-4 mt-5 min-h-[45vh] relative'>
+    <Card className='px-5 pb-4 mt-5 min-h-[45vh] relative max-[850px]:hidden'>
       <div className='py-[14px] flex justify-between'>
         <CardTitle>Current Orders</CardTitle>
         {/* CURRENT ORDERS PAGINATION */}
-        <div className='flex gap-2'>
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              className={
-                `border rounded font-semibold grid place-items-center text-sm size-[25px] hover:bg-accent transition-colors duration-300 ease-out
-                ${pagination.currentPage === index + 1 ? 'bg-accent' : ''}`
-              }
-              onClick={() => pagination.setCurrentPage(index + 1)}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
+        <OrdersPagination className='home-current__order-pagination' pagination={pagination} />
       </div>
       {orders.length === 0 && !loading && (
         <div className="flex flex-col items-center justify-center text-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">

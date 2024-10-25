@@ -4,15 +4,26 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Separator } from "@/components/ui/separator";
 import OrdersButtons from './includes/OrdersButtons';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import OrdersPagination from './includes/OrdersPagination';
 
 interface Props {
   orders: Order[];
   orderId: string | null;
   onChangeColorStatus: (status: string, style: string) => string;
   onSelectOrder: (id: string) => void;
+  pagination: {
+    currentPage: number,
+    setCurrentPage: (page: number) => void;
+  };
 }
 
-const OrderDetails: React.FC<Props> = ({ orders, orderId, onChangeColorStatus, onSelectOrder }) => {
+const OrderDetails: React.FC<Props> = ({
+  orders,
+  orderId,
+  onChangeColorStatus,
+  onSelectOrder,
+  pagination
+}) => {
 
   const orderIndex = orders.findIndex((order) => order.id === orderId);
   const order = orders[orderIndex];
@@ -99,13 +110,18 @@ const OrderDetails: React.FC<Props> = ({ orders, orderId, onChangeColorStatus, o
         <div className="text-xs text-muted-foreground">
           <span className='font-semibold'>Date</span>: {order?.date}
         </div>
-        <div className='flex gap-2'>
+        <div className='flex gap-2 items-center'>
           <button
             onClick={handelPrev}
             disabled={orderIndex === 0}
             className='size-[30px] disabled:cursor-not-allowed disabled:bg-muted rounded border grid place-items-center bg-white hover:bg-accent duration-300 transition-colors ease-out'>
             <ChevronLeft size={16} />
           </button>
+          {/* 
+            __ ORDERS DETAILS PAGINATION
+            => (WORK JUST IN SMALL SCREEN SHOWING IN 850PX) <=
+           */}
+          <OrdersPagination className='home-order__details-pagination' pagination={pagination} />
           <button
             onClick={handelNext}
             disabled={orderIndex === orders.length - 1}

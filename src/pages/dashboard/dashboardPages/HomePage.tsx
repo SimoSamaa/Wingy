@@ -90,6 +90,7 @@ const HomePage = () => {
         orderId={selectedOrderId}
         onChangeColorStatus={orderStatus}
         onSelectOrder={setSelectedOrderId}
+        pagination={{ currentPage, setCurrentPage }}
       />
     </main>
   );

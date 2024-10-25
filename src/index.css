@@ -61,6 +61,22 @@
   @apply bg-accent text-foreground;
 }
 
-.dashboard_navigation-mobile a.active  {
+.dashboard_navigation-mobile a.active {
   @apply text-foreground;
+}
+
+@layer utilities {
+
+  /* HOME ORDERS PAGINATION */
+  @media (max-width: 850px) {
+    .home-order__details-pagination {
+      @apply !flex;
+    }
+  }
+
+  @media (min-width: 850px) {
+    .home-current__order-pagination {
+      @apply !flex;
+    }
+  }
 }
