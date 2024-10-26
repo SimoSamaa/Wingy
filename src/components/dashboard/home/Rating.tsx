@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Card, CardTitle } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress";
@@ -7,15 +8,15 @@ import { RootState } from '@/store/index.ts';
 const Rating = () => {
   const rating = useSelector((state: RootState) => state.rating);
 
-  const ratingsData = [
+  const ratingsData = useMemo(() => [
     { star: 5, rating: rating.fiveStars },
     { star: 4, rating: rating.fourStars },
     { star: 3, rating: rating.threeStars },
     { star: 2, rating: rating.twoStars },
     { star: 1, rating: rating.oneStar },
-  ];
+  ], [rating]);
 
-  const calculateAverageRating = () => {
+  const averageRating = useMemo(() => {
     const totalStars =
       (5 * rating.fiveStars) +
       (4 * rating.fourStars) +
@@ -24,9 +25,7 @@ const Rating = () => {
       (1 * rating.oneStar);
 
     return (totalStars / rating.totalReviews).toFixed(1);
-  };
-
-  const averageRating = calculateAverageRating();
+  }, [rating]);
 
   // Helper function to calculate the percentage for each star rating
   const getProgressValue = (count: number) => (count / rating.totalReviews) * 100;

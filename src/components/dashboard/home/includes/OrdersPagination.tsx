@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/index';
 
@@ -13,7 +13,9 @@ interface Props {
 const OrdersPagination: React.FC<Props> = ({ pagination, className }) => {
   const totalItems = useSelector((state: RootState) => state.orders.totalItems);
   const perPage = 4;
-  const totalPages = Math.ceil(totalItems / perPage); // Calculate total pages
+  const totalPages = useMemo(() => {
+    return Math.ceil(totalItems / perPage); // Calculate total pages
+  }, [totalItems, perPage]);
 
   return (
     <div className={`gap-2 hidden ${className}`}>
