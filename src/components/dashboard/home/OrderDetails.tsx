@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type Order from '@/types/orderTypes';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from "@/components/ui/separator";
@@ -25,7 +25,10 @@ const OrderDetails: React.FC<Props> = ({
   pagination
 }) => {
 
-  const orderIndex = orders.findIndex((order) => order.id === orderId);
+  const orderIndex = useMemo(() => {
+    return orders.findIndex((order) => order.id === orderId);
+  }, [orders, orderId]);
+
   const order = orders[orderIndex];
 
   const handelNext = () => {
@@ -134,4 +137,4 @@ const OrderDetails: React.FC<Props> = ({
   );
 };
 
-export default OrderDetails;;
+export default React.memo(OrderDetails);

@@ -90,4 +90,4 @@ const CurrentOrders: React.FC<Props> = ({
   );
 };
 
-export default CurrentOrders;
+export default React.memo(CurrentOrders);

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Card, CardTitle } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress";
@@ -51,4 +51,4 @@ const Rating = () => {
   );
 };
 
-export default Rating;
+export default React.memo(Rating);
