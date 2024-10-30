@@ -11,18 +11,18 @@ import PasswordButton from '@/components/ui/PasswordButton';
 import router from '@/router';
 import helpers from '@/lib/helpers';
 
-interface SignupFormState {
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+// interface SignupFormState {
+//   email: string;
+//   password: string;
+//   confirmPassword: string;
+// }
 
 const SignupPage = () => {
   const navigate = useNavigate();
   const [useHandleChange] = helpers();
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
-  const [signupForm, setSignupForm] = useState<SignupFormState>({ email: '', password: '', confirmPassword: '' });
+  const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '' });
   const [errorsForm, setErrorsForm] = useState<Record<string, string>>({});
   const [submitForm, setSubmitForm] = useState(false);
   // const [isLoading, setLoading] = useState(false);
@@ -106,7 +106,7 @@ const SignupPage = () => {
               type="text"
               placeholder="m@example.com"
               value={signupForm.email}
-              onChange={useHandleChange<SignupFormState>(setSignupForm, errorsForm, setErrorsForm)}
+              onChange={useHandleChange(setSignupForm, errorsForm, setErrorsForm)}
               error={!!errorsForm.email}
             />
             {errorsForm.email && <p className='text-xs text-red-500'>{errorsForm.email}</p>}
@@ -122,7 +122,7 @@ const SignupPage = () => {
                 ref={passwordRef}
                 placeholder='********'
                 value={signupForm.password}
-                onChange={useHandleChange<SignupFormState>(setSignupForm, errorsForm, setErrorsForm)}
+                onChange={useHandleChange(setSignupForm, errorsForm, setErrorsForm)}
                 error={!!errorsForm.password}
               />
               <PasswordButton ele={passwordRef} />
@@ -139,7 +139,7 @@ const SignupPage = () => {
                 ref={confirmPasswordRef}
                 placeholder='********'
                 value={signupForm.confirmPassword}
-                onChange={useHandleChange<SignupFormState>(setSignupForm, errorsForm, setErrorsForm)}
+                onChange={useHandleChange(setSignupForm, errorsForm, setErrorsForm)}
                 error={!!errorsForm.confirmPassword}
               />
               <PasswordButton ele={confirmPasswordRef} />

@@ -52,7 +52,7 @@
   }
 }
 
-:is(.sidebar_order-details) {
+:is(.sidebar_order-details, .add-product_form) {
   scrollbar-width: thin;
   scrollbar-color: rgba(100, 100, 100, 0.6) #f0f0f0;
 }

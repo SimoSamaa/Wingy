@@ -7,7 +7,7 @@ const helpers = () => {
     errorsForm: Record<string, string>,
     setErrorsForm: Dispatch<SetStateAction<Record<string, string>>>
   ) => {
-    return (e: React.ChangeEvent<HTMLInputElement>) => {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { id, value } = e.target;
 
       setForm((prev) => ({

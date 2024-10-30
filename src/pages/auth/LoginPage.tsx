@@ -10,16 +10,16 @@ import PasswordButton from '@/components/ui/PasswordButton';
 import router from '@/router';
 import helpers from '@/lib/helpers';
 
-interface LoginFormState {
-  email: string;
-  password: string;
-}
+// interface LoginFormState {
+//   email: string;
+//   password: string;
+// }
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [useHandleChange] = helpers();
   const passwordRef = useRef<HTMLInputElement>(null);
-  const [loginForm, setLoginForm] = useState<LoginFormState>({ email: '', password: '' });
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [errorsForm, setErrorsForm] = useState<Record<string, string>>({});
   const [submitForm, setSubmitForm] = useState(false);
   // const [isLoading, setLoading] = useState(false);
@@ -88,7 +88,7 @@ const LoginPage = () => {
               type="text"
               placeholder="m@example.com"
               value={loginForm.email}
-              onChange={useHandleChange<LoginFormState>(setLoginForm, errorsForm, setErrorsForm)}
+              onChange={useHandleChange(setLoginForm, errorsForm, setErrorsForm)}
               error={!!errorsForm.email}
             />
             {errorsForm.email && <p className='text-xs text-red-500'>{errorsForm.email}</p>}
@@ -110,7 +110,7 @@ const LoginPage = () => {
                 ref={passwordRef}
                 placeholder="********"
                 value={loginForm.password}
-                onChange={useHandleChange<LoginFormState>(setLoginForm, errorsForm, setErrorsForm)}
+                onChange={useHandleChange(setLoginForm, errorsForm, setErrorsForm)}
                 error={!!errorsForm.password}
               />
               <PasswordButton ele={passwordRef} />

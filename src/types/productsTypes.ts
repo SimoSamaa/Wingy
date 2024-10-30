@@ -4,7 +4,7 @@ interface Product {
   name: string;
   description: string;
   category: string;
-  price: number;
+  price: string;
   status: string;
 }
 
