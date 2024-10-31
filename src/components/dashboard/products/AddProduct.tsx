@@ -99,7 +99,12 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
         </DialogHeader>
         <form onSubmit={submitProductData} className='space-y-4 h-[500px] overflow-auto p-6 add-product_form'>
           {/* UPLOAD PRODUCT IMAGE */}
-          <UploadImgProduct payload={{ uploadedImg, setUploadedImg, errorImg: errorsProduct.image, setErrorsProduct }} />
+          <UploadImgProduct payload={{
+            uploadedImg,
+            setUploadedImg,
+            errorImg: errorsProduct.image,
+            setErrorsProduct
+          }} />
           {/* PRODUCT NAME */}
           <div>
             <Label htmlFor='name'>Name</Label>
