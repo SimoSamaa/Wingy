@@ -42,16 +42,18 @@ const customFilter = (row: Row, columnId: string, filterValue: string) => {
   return name.includes(value) || description.includes(value);
 };
 
-const ActionMenu: React.FC<{ productId: string; }> = ({ productId }) => {
+interface Props {
+  product: Product;
+  onEditProduct: (data: Product) => void;
+}
+const ActionMenu: React.FC<Props> = ({ product, onEditProduct }) => {
   const dispatch = useDispatch();
 
-  const handleEdit = () => {
-    console.log("Edit product:", productId);
-  };
+  const handleEdit = () => onEditProduct(product);
 
   const handleDelete = () => {
-    dispatch(productsActions.deleteProduct(productId));
-    console.log("Delete product:", productId);
+    dispatch(productsActions.deleteProduct(product.id));
+    console.log("Delete product:", product.id);
   };
 
   return (
@@ -76,7 +78,7 @@ const ActionMenu: React.FC<{ productId: string; }> = ({ productId }) => {
   );
 };
 
-const ColumnsTable: ColumnDef<Product>[] = [
+const ColumnsTable = (handelEditProduct: (product: Product) => void): ColumnDef<Product>[] => [
   {
     accessorKey: "id",
     header: "ID#",
@@ -160,8 +162,13 @@ const ColumnsTable: ColumnDef<Product>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const productId = row.original.id;
-      return (<ActionMenu productId={productId} />);
+      const product = row.original;
+
+      return (
+        <ActionMenu
+          product={product}
+          onEditProduct={handelEditProduct}
+        />);
     },
   },
 ];

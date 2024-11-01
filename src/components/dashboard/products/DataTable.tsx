@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   ColumnFiltersState,
@@ -34,21 +34,44 @@ interface Props {
 }
 
 const DataTable: React.FC<Props> = ({ data }) => {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [filterInput, setFilterInput] = React.useState("");
-  const [showAddProduct, setShowAddProduct] = React.useState(false);
-  const [isVisible, setIsVisible] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [filterInput, setFilterInput] = useState("");
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
 
   console.log('data table render');
 
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value || "";
+    setFilterInput(value);
+    table.getColumn("name")?.setFilterValue(value);
+    table.getColumn("description")?.setFilterValue(value);
+  };
+
+  const handleAddProductClick = () => {
+    setLoading(true);
+    setCurrentProduct(null);
+    setTimeout(() => {
+      setShowAddProduct(true);
+      setIsVisible(true);
+      setLoading(false);
+    }, 500);
+  };
+
+  const handelEditProduct = (product: Product) => {
+    setCurrentProduct(product);
+    setIsVisible(true);
+    setShowAddProduct(true);
+  };
+
   const table = useReactTable({
     data,
-    columns,
+    columns: columns(handelEditProduct),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -69,27 +92,6 @@ const DataTable: React.FC<Props> = ({ data }) => {
       rowSelection,
     },
   });
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value || "";
-    setFilterInput(value);
-    table.getColumn("name")?.setFilterValue(value);
-    table.getColumn("description")?.setFilterValue(value);
-  };
-
-  const handleAddProductClick = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setShowAddProduct(true);
-      setIsVisible(true);
-      setLoading(false);
-    }, 500);
-  };
-
-  const handleCloseDialog = () => {
-    setIsVisible(false);
-    setTimeout(() => setShowAddProduct(false), 300); // Adjust 300ms to match your CSS animation duration
-  };
 
   return (
     <div className="w-full">
@@ -121,7 +123,11 @@ const DataTable: React.FC<Props> = ({ data }) => {
           )}
         </Button>
         {/* ADD PRODUCTS */}
-        {showAddProduct && <LazyAddProduct isVisible={isVisible} onClose={handleCloseDialog} />}
+        {showAddProduct &&
+          <LazyAddProduct
+            isVisible={isVisible}
+            currentProduct={currentProduct}
+            onClose={() => setIsVisible(false)} />}
       </div>
       {/* PRODUCTS TABLE */}
       <div className="rounded-md border bg-background">

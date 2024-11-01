@@ -105,6 +105,11 @@ const productsSlice = createSlice({
     },
     deleteProduct(state, action) {
       state.products = state.products.filter((product) => product.id !== action.payload);
+    },
+    editProduct(state, action) {
+      console.log('Edit product:', action.payload);
+
+      state.products = state.products.map((product) => product.id === action.payload.id ? action.payload : product);
     }
   }
 });

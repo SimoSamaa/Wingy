@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { z } from 'zod';
 import { useDispatch } from 'react-redux';
 import {
@@ -14,17 +14,18 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import UploadImgProduct from './UploadImgProduct';
 import helpers from '@/lib/helpers';
-// import type Product from '@/types/productsTypes';
+import type Product from '@/types/productsTypes';
 import { productsActions } from '@/store/products/productsSlice.ts';
 
 interface Props {
   isVisible: boolean;
+  currentProduct: Product | null;
   onClose: () => void;
 }
 
 // type ProductWithoutId = Omit<Product, 'id'>;
 
-const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
+const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => {
   const dispatch = useDispatch();
   const [useHandleChange] = helpers();
 
@@ -36,12 +37,12 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
     description: '',
     price: '',
     category: '',
-    status: 'Available'
+    status: 'Available',
   });
 
   const [errorsProduct, setErrorsProduct] = useState<Record<string, string>>({});
 
-  const statuses = ['Available', 'Unavailable'];
+  const statuses = useMemo(() => ['Available', 'Unavailable'], []);
   const categories = [
     '🍝 Pastas', '🍟 Starters', '🥗 Salads',
     '🍖 Grilled Meat', '🍩 Deserts', '🍔 Burgers',
@@ -57,10 +58,45 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
     category: z.string().nonempty({ message: productInfo('category') }),
   });
 
-  const selectProductStateHandler = (e: React.MouseEvent<HTMLButtonElement>, status: string) => {
+  useEffect(() => {
+    if (currentProduct) {
+      setProductData({
+        name: currentProduct.name || '',
+        description: currentProduct.description || '',
+        price: currentProduct.price.toString() || '',
+        category: currentProduct.category || '',
+        status: currentProduct.status || 'Available',
+      });
+      setUploadedImg(currentProduct.image || '');
+    } else {
+      setProductData({
+        name: '',
+        description: '',
+        price: '',
+        category: '',
+        status: 'Available',
+      });
+      setUploadedImg('');
+    }
+  }, [currentProduct]);
+
+  useEffect(() => {
+    setCurrentStatus(statuses.indexOf(productData.status));
+    if (selectedStatusRef.current) {
+      selectedStatusRef.current.style.left = productData.status === 'Available' ? '0%' : '50%';
+    }
+  }, [statuses, productData]);
+
+  const handleClose = () => {
+    setErrorsProduct({});
+    onClose();
+  };
+
+  const selectProductStateHandler = (status: string) => {
     const selectedStatus = selectedStatusRef.current as HTMLElement;
-    selectedStatus.style.left = e.currentTarget.offsetLeft + 'px';
-    setCurrentStatus(statuses.indexOf(status));
+    const index = statuses.indexOf(status);
+    if (index !== -1) selectedStatus.style.left = `${(index * (100) / 2)}%`;
+    setCurrentStatus(index);
     setProductData((prev) => ({ ...prev, status }));
   };
 
@@ -87,15 +123,26 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
     e.preventDefault();
     const validationSuccess = addProductValidation();
     if (!validationSuccess) return;
-    dispatch(productsActions.addProduct({ ...productData, image: uploadedImg }));
-    onClose();
+
+    const productPayload = { ...productData, image: uploadedImg };
+
+    if (currentProduct) {
+      dispatch(productsActions.editProduct({
+        id: currentProduct.id,
+        ...productPayload
+      }));
+    } else {
+      dispatch(productsActions.addProduct(productPayload));
+    }
+
+    handleClose();
   };
 
   return (
-    <Dialog open={isVisible} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isVisible} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="sm:max-w-[425px] p-0">
         <DialogHeader className='px-6 pt-6'>
-          <DialogTitle>Add new product</DialogTitle>
+          <DialogTitle>{currentProduct ? 'Edit' : 'Add new'} product</DialogTitle>
         </DialogHeader>
         <form onSubmit={submitProductData} className='space-y-4 h-[500px] overflow-auto p-6 add-product_form'>
           {/* UPLOAD PRODUCT IMAGE */}
@@ -103,7 +150,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
             uploadedImg,
             setUploadedImg,
             errorImg: errorsProduct.image,
-            setErrorsProduct
+            setErrorsProduct,
           }} />
           {/* PRODUCT NAME */}
           <div>
@@ -114,6 +161,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
               inputStyle='inputProduct'
               id='name'
               onChange={useHandleChange(setProductData, errorsProduct, setErrorsProduct)}
+              value={productData.name}
               error={!!errorsProduct.name}
             />
             {errorsProduct.name && <p className='text-red-500 text-xs mt-1'>{errorsProduct.name}</p>}
@@ -127,6 +175,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
               inputStyle='inputProduct'
               error={!!errorsProduct.description}
               onChange={useHandleChange(setProductData, errorsProduct, setErrorsProduct)}
+              value={productData.description}
             />
             {errorsProduct.description && <p className='text-red-500 text-xs mt-1'>{errorsProduct.description}</p>}
           </div>
@@ -144,6 +193,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
                 step='0.01'
                 error={!!errorsProduct.price}
                 onChange={useHandleChange(setProductData, errorsProduct, setErrorsProduct)}
+                value={productData.price.toString()}
               />
             </div>
             {errorsProduct.price && <p className='text-red-500 text-xs mt-1'>{errorsProduct.price}</p>}
@@ -151,7 +201,9 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
           {/* PRODUCT CATEGORY */}
           <div>
             <Label htmlFor='category'>Category</Label>
-            <Select onValueChange={(value) => setProductData((prev) => ({ ...prev, category: value }))}>
+            <Select
+              value={productData.category}
+              onValueChange={(value) => setProductData((prev) => ({ ...prev, category: value }))}>
               <SelectTrigger
                 id="category"
                 inputStyle='inputProduct'
@@ -177,12 +229,12 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose }) => {
             <div className='mt-1 flex bg-muted/40 border rounded-md border-gray-400 h-[40px] relative'>
               <span
                 ref={selectedStatusRef}
-                className='bg-primary absolute border-2 border-[#f8f8f8] left-0 h-full w-1/2 rounded-md duration-300 ease-out'></span>
+                className='w-1/2 bg-primary absolute border-2 border-[#f8f8f8] left-0 h-full rounded-md duration-300 ease-out'></span>
               {statuses.map((status, ind) => (
                 <button
                   key={ind}
                   type='button'
-                  onClick={(e) => selectProductStateHandler(e, status)}
+                  onClick={() => selectProductStateHandler(status)}
                   className={`flex-1 z-10 outline-primary ${ind === currentStatus ? 'text-white' : ''}`}
                 >
                   {status}
