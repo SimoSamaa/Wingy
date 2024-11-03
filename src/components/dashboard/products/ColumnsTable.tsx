@@ -1,3 +1,6 @@
+import React, { useState } from "react";
+import { useDispatch } from 'react-redux';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,17 +18,26 @@ import {
 } from '@/components/ui/tooltip';
 
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import {
   MoreHorizontal,
   FilePenLine,
   Trash,
   CircleX,
-  CircleCheck
+  CircleCheck,
+  ArrowUpDown
 } from "lucide-react";
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from '@/components/ui/button';
 import type Product from "@/types/productsTypes";
-import { useDispatch } from 'react-redux';
 import { productsActions } from '@/store/products/productsSlice';
 
 interface Row {
@@ -46,43 +58,84 @@ interface Props {
   product: Product;
   onEditProduct: (data: Product) => void;
 }
+
 const ActionMenu: React.FC<Props> = ({ product, onEditProduct }) => {
   const dispatch = useDispatch();
+  const [isDialogOpen, setDialogOpen] = useState(false); // Manage dialog state
 
   const handleEdit = () => onEditProduct(product);
 
-  const handleDelete = () => {
+  const handleDeleteProduct = () => {
     dispatch(productsActions.deleteProduct(product.id));
-    console.log("Delete product:", product.id);
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleEdit}>
-          <FilePenLine className="size-4 stroke-[1.7] mr-1" /> Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDelete}>
-          <Trash className="size-4 stroke-[1.7] mr-1" /> Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleEdit}>
+            <FilePenLine className="size-4 stroke-[1.7] mr-1" /> Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDialogOpen(true)}>
+            <Trash className="size-4 stroke-[1.7] mr-1" /> Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete Product</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the product <span className="font-semibold text-nowrap text-foreground">"{product.name}"</span>?
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="max-md:gap-2">
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDeleteProduct}
+            >
+              Delete
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
 const ColumnsTable = (handelEditProduct: (product: Product) => void): ColumnDef<Product>[] => [
   {
     accessorKey: "id",
-    header: "ID#",
-    cell: ({ row }) => <div>#{row.index + 1}</div>
+    header: ({ column }) =>
+    (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        ID#
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <div className="pl-4">#{row.index + 1}</div>, // Display ID based on index
+    enableSorting: true,
+    sortingFn: (rowA, rowB) => (rowA.index - rowB.index),
   },
   {
     accessorKey: "image",
@@ -95,13 +148,29 @@ const ColumnsTable = (handelEditProduct: (product: Product) => void): ColumnDef<
   },
   {
     accessorKey: "name",
-    header: "NAME",
-    cell: ({ row }) => <div className="text-nowrap">{row.getValue("name")}</div>,
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        NAME
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <div className="text-nowrap pl-4">{row.getValue("name")}</div>,
     filterFn: customFilter,
   },
   {
     accessorKey: "description",
-    header: "DESCRIPTION",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        DESCRIPTION
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
       const productDescription: string = row.getValue("description");
       const productsChar: number = productDescription.length;
@@ -111,7 +180,7 @@ const ColumnsTable = (handelEditProduct: (product: Product) => void): ColumnDef<
           <Tooltip>
             <TooltipTrigger asChild>
               <p
-                className="text-nowrap w-[300px] overflow-hidden text-ellipsis">
+                className="text-nowrap w-[316px] overflow-hidden text-ellipsis pl-4">
                 {productDescription}
               </p>
             </TooltipTrigger>
@@ -128,8 +197,16 @@ const ColumnsTable = (handelEditProduct: (product: Product) => void): ColumnDef<
   },
   {
     accessorKey: "price",
-    header: "PRICE",
-    cell: ({ row }) => <div>{row.getValue("price")}DH</div>,
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        PRICE
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <div className="pl-4">{row.getValue("price")}DH</div>,
   },
   {
     accessorKey: "category",
@@ -138,12 +215,22 @@ const ColumnsTable = (handelEditProduct: (product: Product) => void): ColumnDef<
   },
   {
     accessorKey: "status",
-    header: "STATUS",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          STATUS
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const productStatus: string = row.getValue("status");
 
       return (
-        <div className={`flex gap-1 items-center border rounded py-1 px-2 w-fit 
+        <div className={`flex gap-1 items-center border rounded py-1 px-2 w-fit
           ${productStatus === 'Available'
             ? 'border-green-500 bg-green-100 text-green-500'
             : 'border-red-500 bg-red-100 text-red-500'}`

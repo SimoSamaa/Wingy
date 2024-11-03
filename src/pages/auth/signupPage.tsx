@@ -11,15 +11,9 @@ import PasswordButton from '@/components/ui/PasswordButton';
 import router from '@/router';
 import helpers from '@/lib/helpers';
 
-// interface SignupFormState {
-//   email: string;
-//   password: string;
-//   confirmPassword: string;
-// }
-
 const SignupPage = () => {
   const navigate = useNavigate();
-  const [useHandleChange] = helpers();
+  const { useChangeInput, useValidation } = helpers();
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
   const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '' });
@@ -40,31 +34,12 @@ const SignupPage = () => {
     path: ['confirmPassword']
   });
 
-  const loginFormValidation = () => {
-    setSubmitForm(true);
-    setErrorsForm({});
-
-    const validation = signupSchema.safeParse(signupForm);
-
-    if (!validation.success) {
-      const errMess: { [key: string]: string; } = {};
-      validation.error.errors.forEach((err) => {
-        errMess[err.path[0]] = err.message;
-      });
-
-      setErrorsForm(errMess);
-      setSubmitForm(false);
-
-      return false;
-    }
-
-    return true;
-  };
-
+  const validate = useValidation(signupSchema, signupForm, setErrorsForm);
   const submitLoginFormHandler = (e: React.FormEvent) => {
     e.preventDefault();
-    const validationSuccess = loginFormValidation();
+    const validationSuccess = validate();
     if (!validationSuccess) return;
+    setSubmitForm(true);
 
     try {
       console.log('Signup form submitted', signupForm);
@@ -106,10 +81,9 @@ const SignupPage = () => {
               type="text"
               placeholder="m@example.com"
               value={signupForm.email}
-              onChange={useHandleChange(setSignupForm, errorsForm, setErrorsForm)}
-              error={!!errorsForm.email}
+              onChange={useChangeInput(setSignupForm, errorsForm, setErrorsForm)}
+              error={errorsForm.email}
             />
-            {errorsForm.email && <p className='text-xs text-red-500'>{errorsForm.email}</p>}
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
@@ -122,12 +96,11 @@ const SignupPage = () => {
                 ref={passwordRef}
                 placeholder='********'
                 value={signupForm.password}
-                onChange={useHandleChange(setSignupForm, errorsForm, setErrorsForm)}
-                error={!!errorsForm.password}
+                onChange={useChangeInput(setSignupForm, errorsForm, setErrorsForm)}
+                error={errorsForm.password}
               />
               <PasswordButton ele={passwordRef} />
             </div>
-            {errorsForm.password && <p className='text-xs text-red-500'>{errorsForm.password}</p>}
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
@@ -139,12 +112,11 @@ const SignupPage = () => {
                 ref={confirmPasswordRef}
                 placeholder='********'
                 value={signupForm.confirmPassword}
-                onChange={useHandleChange(setSignupForm, errorsForm, setErrorsForm)}
-                error={!!errorsForm.confirmPassword}
+                onChange={useChangeInput(setSignupForm, errorsForm, setErrorsForm)}
+                error={errorsForm.confirmPassword}
               />
               <PasswordButton ele={confirmPasswordRef} />
             </div>
-            {errorsForm.confirmPassword && <p className='text-xs text-red-500'>{errorsForm.confirmPassword}</p>}
           </div>
           <Button type="submit" className="w-full">
             Sign Up

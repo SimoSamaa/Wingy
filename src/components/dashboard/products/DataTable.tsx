@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { SquarePlus, ArrowUpWideNarrow, Loader2 } from "lucide-react";
+import { SquarePlus, ArrowUpWideNarrow, X } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import columns from './ColumnsTable';
@@ -41,26 +41,21 @@ const DataTable: React.FC<Props> = ({ data }) => {
   const [filterInput, setFilterInput] = useState("");
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
 
   console.log('data table render');
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value || "";
+    const value = e.target.value;
     setFilterInput(value);
     table.getColumn("name")?.setFilterValue(value);
     table.getColumn("description")?.setFilterValue(value);
   };
 
   const handleAddProductClick = () => {
-    setLoading(true);
     setCurrentProduct(null);
-    setTimeout(() => {
-      setShowAddProduct(true);
-      setIsVisible(true);
-      setLoading(false);
-    }, 500);
+    setShowAddProduct(true);
+    setIsVisible(true);
   };
 
   const handelEditProduct = (product: Product) => {
@@ -104,23 +99,25 @@ const DataTable: React.FC<Props> = ({ data }) => {
             onChange={handleFilterChange}
             className="pl-9"
           />
+          {filterInput && (
+            <button
+              onClick={() => {
+                setFilterInput("");
+                table.getColumn("name")?.setFilterValue("");
+                table.getColumn("description")?.setFilterValue("");
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 outline-none hover:bg-muted focus-visible:bg-muted rounded-full p-1"
+            >
+              <X className="text-muted-foreground size-5" />
+            </button>
+          )}
         </div>
         <Button
-          className="max-[450px]:w-[min(384px,100%)]"
+          className="max-[450px]:w-[min(384px,100%)] flex items-center"
           onClick={handleAddProductClick}
-          disabled={loading}
         >
-          {loading ? (
-            <div className="flex items-center">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Please wait
-            </div>
-          ) : (
-            <div className="flex items-center">
-              <SquarePlus className="mr-2 size-5" />
-              Add new product
-            </div>
-          )}
+          <SquarePlus className="mr-2 size-5" />
+          Add new product
         </Button>
         {/* ADD PRODUCTS */}
         {showAddProduct &&
@@ -130,7 +127,7 @@ const DataTable: React.FC<Props> = ({ data }) => {
             onClose={() => setIsVisible(false)} />}
       </div>
       {/* PRODUCTS TABLE */}
-      <div className="rounded-md border bg-background">
+      <div className="rounded-md border bg-background h-[484.8px] relative">
         <Table>
           <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -151,36 +148,30 @@ const DataTable: React.FC<Props> = ({ data }) => {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No Products.
-                </TableCell>
+            {(table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
+            )))}
           </TableBody>
         </Table>
+        {!table.getRowModel().rows?.length && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-semibold">
+            No Products
+          </div>
+        )}
       </div>
-      <div className="flex items-center justify-end space-x-2 pt-4">
+      <div className="flex items-center justify-end mt-8">
         <div className="space-x-2">
           <Button
             variant="outline"
@@ -200,7 +191,7 @@ const DataTable: React.FC<Props> = ({ data }) => {
           </Button>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

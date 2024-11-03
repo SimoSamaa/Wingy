@@ -16,6 +16,7 @@ import UploadImgProduct from './UploadImgProduct';
 import helpers from '@/lib/helpers';
 import type Product from '@/types/productsTypes';
 import { productsActions } from '@/store/products/productsSlice.ts';
+import { Separator } from '@/components/ui/separator';
 
 interface Props {
   isVisible: boolean;
@@ -27,7 +28,7 @@ interface Props {
 
 const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => {
   const dispatch = useDispatch();
-  const [useHandleChange] = helpers();
+  const { useChangeInput, useValidation } = helpers();
 
   const selectedStatusRef = useRef<HTMLButtonElement>(null);
   const [currentStatus, setCurrentStatus] = useState(0);
@@ -41,6 +42,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
   });
 
   const [errorsProduct, setErrorsProduct] = useState<Record<string, string>>({});
+  const [isModified, setIsModified] = useState(false);
 
   const statuses = useMemo(() => ['Available', 'Unavailable'], []);
   const categories = [
@@ -48,6 +50,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
     '🍖 Grilled Meat', '🍩 Deserts', '🍔 Burgers',
     '🍕 Pizzas', '🍗 Chicken', '🥤 Cold Drinks', '☕ Hot Drinks'
   ];
+  const isButtonDisabled = !currentProduct ? false : !isModified;
 
   const productInfo = (text: string) => `Product ${text} is required`;
   const productSchema = z.object({
@@ -68,6 +71,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
         status: currentProduct.status || 'Available',
       });
       setUploadedImg(currentProduct.image || '');
+      setIsModified(false);
     } else {
       setProductData({
         name: '',
@@ -77,6 +81,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
         status: 'Available',
       });
       setUploadedImg('');
+      setIsModified(false);
     }
   }, [currentProduct]);
 
@@ -98,30 +103,13 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
     if (index !== -1) selectedStatus.style.left = `${(index * (100) / 2)}%`;
     setCurrentStatus(index);
     setProductData((prev) => ({ ...prev, status }));
+    setIsModified(true);
   };
 
-  // PRODUCT FORM VALIDATIONS
-  const addProductValidation = () => {
-    setErrorsProduct({});
-
-    const validation = productSchema.safeParse({ ...productData, image: uploadedImg });
-
-    if (!validation.success) {
-      const errMess: { [key: string]: string; } = {};
-      validation.error.errors.forEach((err) => {
-        errMess[err.path[0]] = err.message;
-      });
-
-      setErrorsProduct(errMess);
-      return false;
-    }
-
-    return true;
-  };
-
+  const validate = useValidation(productSchema, { ...productData, image: uploadedImg }, setErrorsProduct);
   const submitProductData = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const validationSuccess = addProductValidation();
+    const validationSuccess = validate();
     if (!validationSuccess) return;
 
     const productPayload = { ...productData, image: uploadedImg };
@@ -140,10 +128,11 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
 
   return (
     <Dialog open={isVisible} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-[425px] p-0">
-        <DialogHeader className='px-6 pt-6'>
+      <DialogContent className="sm:max-w-[425px] p-0 gap-0">
+        <DialogHeader className='p-6'>
           <DialogTitle>{currentProduct ? 'Edit' : 'Add new'} product</DialogTitle>
         </DialogHeader>
+        <Separator />
         <form onSubmit={submitProductData} className='space-y-4 h-[500px] overflow-auto p-6 add-product_form'>
           {/* UPLOAD PRODUCT IMAGE */}
           <UploadImgProduct payload={{
@@ -151,6 +140,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
             setUploadedImg,
             errorImg: errorsProduct.image,
             setErrorsProduct,
+            setIsModified
           }} />
           {/* PRODUCT NAME */}
           <div>
@@ -160,11 +150,16 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
               placeholder='Enter product name'
               inputStyle='inputProduct'
               id='name'
-              onChange={useHandleChange(setProductData, errorsProduct, setErrorsProduct)}
+              maxLength={50}
+              onChange={
+                useChangeInput(
+                  setProductData,
+                  errorsProduct,
+                  setErrorsProduct,
+                  () => setIsModified(true))}
               value={productData.name}
-              error={!!errorsProduct.name}
+              error={errorsProduct.name}
             />
-            {errorsProduct.name && <p className='text-red-500 text-xs mt-1'>{errorsProduct.name}</p>}
           </div>
           {/* PRODUCT DESCRIPTION */}
           <div>
@@ -173,17 +168,22 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
               placeholder='Enter product description'
               id='description'
               inputStyle='inputProduct'
-              error={!!errorsProduct.description}
-              onChange={useHandleChange(setProductData, errorsProduct, setErrorsProduct)}
+              error={errorsProduct.description}
+              onChange={
+                useChangeInput(
+                  setProductData,
+                  errorsProduct,
+                  setErrorsProduct,
+                  () => setIsModified(true)
+                )}
               value={productData.description}
             />
-            {errorsProduct.description && <p className='text-red-500 text-xs mt-1'>{errorsProduct.description}</p>}
           </div>
           {/* PRODUCT PRICE */}
           <div>
             <Label htmlFor='price'>Price</Label>
             <div className='relative'>
-              <span className='absolute left-4 top-1/2 -translate-y-1/2 font-medium pr-1 border-r border-gray-400'>DH</span>
+              <span className='absolute left-4 top-[9px] font-medium pr-1 border-r border-gray-400'>DH</span>
               <Input
                 type='number'
                 className='pl-12'
@@ -191,19 +191,28 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
                 inputStyle='inputProduct'
                 id='price'
                 step='0.01'
-                error={!!errorsProduct.price}
-                onChange={useHandleChange(setProductData, errorsProduct, setErrorsProduct)}
+                min='0'
+                error={errorsProduct.price}
+                onChange={
+                  useChangeInput(
+                    setProductData,
+                    errorsProduct,
+                    setErrorsProduct,
+                    () => setIsModified(true)
+                  )}
                 value={productData.price.toString()}
               />
             </div>
-            {errorsProduct.price && <p className='text-red-500 text-xs mt-1'>{errorsProduct.price}</p>}
           </div>
           {/* PRODUCT CATEGORY */}
           <div>
             <Label htmlFor='category'>Category</Label>
             <Select
               value={productData.category}
-              onValueChange={(value) => setProductData((prev) => ({ ...prev, category: value }))}>
+              onValueChange={(value) => {
+                setProductData((prev) => ({ ...prev, category: value }));
+                setIsModified(true);
+              }}>
               <SelectTrigger
                 id="category"
                 inputStyle='inputProduct'
@@ -242,7 +251,9 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
               ))}
             </div>
           </div>
-          <Button className='w-full block'>Save</Button>
+          <Button className='w-full block' disabled={isButtonDisabled}>
+            {currentProduct ? 'Save' : 'Add'}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

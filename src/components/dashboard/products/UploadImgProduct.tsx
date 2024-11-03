@@ -8,6 +8,7 @@ interface Props {
     setUploadedImg: (value: string) => void;
     errorImg: string;
     setErrorsProduct: (updater: (prevErrors: Record<string, string>) => Record<string, string>) => void;
+    setIsModified: (value: boolean) => void;
   };
 }
 
@@ -72,7 +73,10 @@ const UploadImgProduct: React.FC<Props> = ({ payload }) => {
     // Handle file upload
     input.onchange = (e: Event) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) handleUploadImg(file);
+      if (file) {
+        handleUploadImg(file);
+        payload.setIsModified(true);
+      }
     };
   };
 

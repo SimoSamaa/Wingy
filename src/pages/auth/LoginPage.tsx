@@ -10,18 +10,12 @@ import PasswordButton from '@/components/ui/PasswordButton';
 import router from '@/router';
 import helpers from '@/lib/helpers';
 
-// interface LoginFormState {
-//   email: string;
-//   password: string;
-// }
-
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [useHandleChange] = helpers();
+  const { useChangeInput, useValidation } = helpers();
   const passwordRef = useRef<HTMLInputElement>(null);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [errorsForm, setErrorsForm] = useState<Record<string, string>>({});
-  const [submitForm, setSubmitForm] = useState(false);
   // const [isLoading, setLoading] = useState(false);
 
   const loginSchema = z.object({
@@ -33,30 +27,10 @@ const LoginPage = () => {
       .nonempty({ message: 'Password is required' })
   });
 
-  const loginFormValidation = () => {
-    setSubmitForm(true);
-    setErrorsForm({});
-
-    const validation = loginSchema.safeParse(loginForm);
-
-    if (!validation.success) {
-      const errMess: { [key: string]: string; } = {};
-      validation.error.errors.forEach((err) => {
-        errMess[err.path[0]] = err.message;
-      });
-
-      setErrorsForm(errMess);
-      setSubmitForm(false);
-
-      return false;
-    }
-
-    return true;
-  };
-
+  const validate = useValidation(loginSchema, loginForm, setErrorsForm);
   const submitLoginFormHandler = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validationSuccess = loginFormValidation();
+    const validationSuccess = validate();
     if (!validationSuccess) return;
 
     try {
@@ -88,10 +62,9 @@ const LoginPage = () => {
               type="text"
               placeholder="m@example.com"
               value={loginForm.email}
-              onChange={useHandleChange(setLoginForm, errorsForm, setErrorsForm)}
-              error={!!errorsForm.email}
+              onChange={useChangeInput(setLoginForm, errorsForm, setErrorsForm)}
+              error={errorsForm.email}
             />
-            {errorsForm.email && <p className='text-xs text-red-500'>{errorsForm.email}</p>}
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
@@ -110,12 +83,11 @@ const LoginPage = () => {
                 ref={passwordRef}
                 placeholder="********"
                 value={loginForm.password}
-                onChange={useHandleChange(setLoginForm, errorsForm, setErrorsForm)}
-                error={!!errorsForm.password}
+                onChange={useChangeInput(setLoginForm, errorsForm, setErrorsForm)}
+                error={errorsForm.password}
               />
               <PasswordButton ele={passwordRef} />
             </div>
-            {errorsForm.password && <p className='text-xs text-red-500'>{errorsForm.password}</p>}
           </div>
           <Button type="submit" className="w-full">
             Login
