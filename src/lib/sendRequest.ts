@@ -1,0 +1,35 @@
+const sendRequest = async <
+  T = {
+    message: string,
+    [key: string]: string;
+  },
+  P = object
+>(
+  page: number | null = 1,
+  endPoint: string,
+  method: string = 'GET',
+  payload: P | null = null,
+): Promise<T> => {
+
+  const fetchOptions: RequestInit = {
+    method,
+    // headers: { 'Authorization': `Bearer ${token}` },
+  };
+
+  if (method !== 'GET' && payload !== null) {
+    fetchOptions.headers = { 'Content-Type': 'application/json' };
+    fetchOptions.body = JSON.stringify(payload);
+  }
+
+  const req = await fetch(`${import.meta.env.VITE_SERVER_URL}/${endPoint}?page=${page}`, fetchOptions);
+  const res = await req.json();
+
+  if (!req.ok) {
+    const error = new Error(res.message || 'Could not fetch Data!');
+    throw error;
+  }
+
+  return res;
+};
+
+export default sendRequest;

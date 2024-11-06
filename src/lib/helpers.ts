@@ -16,7 +16,7 @@ const helpers = () => {
         ...prev,
         [id]: value,
       }));
-    }, 300, true);
+    }, 500, true);
 
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { id, value } = e.target;
@@ -41,7 +41,7 @@ const helpers = () => {
     data: object,
     setErrors: Dispatch<SetStateAction<Record<string, string>>>
   ) => {
-    const validate = (): boolean => {
+    return (): boolean => {
       setErrors({});
       const validation = schema.safeParse(data);
 
@@ -56,8 +56,6 @@ const helpers = () => {
         return true;
       }
     };
-
-    return validate;
   };
 
   return { useChangeInput, useValidation };

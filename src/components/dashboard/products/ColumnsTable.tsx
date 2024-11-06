@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch } from 'react-redux';
+import { useToast } from "@/hooks/use-toast";
+import { deleteProduct } from '@/store/products/actions.ts';
+import { AppDispatch } from '@/store/index';
 
 import {
   DropdownMenu,
@@ -32,13 +35,13 @@ import {
   Trash,
   CircleX,
   CircleCheck,
-  ArrowUpDown
+  ArrowUpDown,
+  Loader2
 } from "lucide-react";
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from '@/components/ui/button';
 import type Product from "@/types/productsTypes";
-import { productsActions } from '@/store/products/productsSlice';
 
 interface Row {
   getValue: (value: string) => void;
@@ -60,13 +63,32 @@ interface Props {
 }
 
 const ActionMenu: React.FC<Props> = ({ product, onEditProduct }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const { toast } = useToast();
+
   const [isDialogOpen, setDialogOpen] = useState(false); // Manage dialog state
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEdit = () => onEditProduct(product);
 
-  const handleDeleteProduct = () => {
-    dispatch(productsActions.deleteProduct(product.id));
+  const handleDeleteProduct = async () => {
+    try {
+      setIsLoading(true);
+      await dispatch(deleteProduct(product.id));
+      toast({
+        title: "Product Deleted",
+        description: `${product.name} has been removed from your inventory.`,
+      });
+
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error as string,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -101,17 +123,20 @@ const ActionMenu: React.FC<Props> = ({ product, onEditProduct }) => {
           <DialogFooter className="max-md:gap-2">
             <Button
               type="button"
-              variant="destructive"
-              onClick={handleDeleteProduct}
-            >
-              Delete
-            </Button>
-            <Button
-              type="button"
               variant="outline"
               onClick={() => setDialogOpen(false)}
             >
               Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDeleteProduct}
+              className="flex gap-2"
+              disabled={isLoading}
+            >
+              {isLoading && <Loader2 className="animate-spin size-5" />}
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,4 +1,4 @@
-const debounce = <T extends [string, string]>(
+const debounce = <T extends unknown[]>(
   fn: (...args: T) => void,
   delay: number,
   immediate: boolean = false
@@ -17,5 +17,19 @@ const debounce = <T extends [string, string]>(
     if (callNow) fn(...args);
   };
 };
+
+// const debounce = <T extends unknown[]>(
+//   fn: (...args: T) => void,
+//   delay: number
+// ) => {
+//   let timeout: ReturnType<typeof setTimeout>;
+
+//   return (...args: T) => {
+//     clearTimeout(timeout);
+//     timeout = setTimeout(() => {
+//       fn(...args);
+//     }, delay);
+//   };
+// };
 
 export default debounce;

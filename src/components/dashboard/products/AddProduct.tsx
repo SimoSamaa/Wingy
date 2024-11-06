@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { z } from 'zod';
 import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store/index';
+import { Loader2 } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import UploadImgProduct from './UploadImgProduct';
 import helpers from '@/lib/helpers';
 import type Product from '@/types/productsTypes';
-import { productsActions } from '@/store/products/productsSlice.ts';
 import { Separator } from '@/components/ui/separator';
+import { addProduct, editProduct } from '@/store/products/actions';
 
 interface Props {
   isVisible: boolean;
@@ -24,11 +27,12 @@ interface Props {
   onClose: () => void;
 }
 
-// type ProductWithoutId = Omit<Product, 'id'>;
-
 const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { useChangeInput, useValidation } = helpers();
+  const { toast } = useToast();
+
+  // console.log('add products render');
 
   const selectedStatusRef = useRef<HTMLButtonElement>(null);
   const [currentStatus, setCurrentStatus] = useState(0);
@@ -43,6 +47,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
 
   const [errorsProduct, setErrorsProduct] = useState<Record<string, string>>({});
   const [isModified, setIsModified] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const statuses = useMemo(() => ['Available', 'Unavailable'], []);
   const categories = [
@@ -114,16 +119,44 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
 
     const productPayload = { ...productData, image: uploadedImg };
 
-    if (currentProduct) {
-      dispatch(productsActions.editProduct({
-        id: currentProduct.id,
-        ...productPayload
-      }));
-    } else {
-      dispatch(productsActions.addProduct(productPayload));
-    }
+    try {
+      setIsLoading(true);
+      if (currentProduct) {
+        await dispatch(editProduct({
+          id: currentProduct.id,
+          ...productPayload
+        }));
 
-    handleClose();
+        toast({
+          title: "Product Updated",
+          description: `Changes to ${productPayload.name} have been saved.`,
+        });
+      } else {
+        await dispatch(addProduct(productPayload));
+
+        toast({
+          title: "Product Added",
+          description: `${productPayload.name} has been added successfully.`,
+        });
+      }
+      handleClose();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error as string,
+      });
+    } finally {
+      setProductData({
+        name: '',
+        description: '',
+        price: '',
+        category: '',
+        status: 'Available',
+      });
+      setUploadedImg('');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -251,7 +284,8 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
               ))}
             </div>
           </div>
-          <Button className='w-full block' disabled={isButtonDisabled}>
+          <Button className='w-full flex gap-2' disabled={isButtonDisabled || isLoading}>
+            {isLoading && <Loader2 className="animate-spin size-5" />}
             {currentProduct ? 'Save' : 'Add'}
           </Button>
         </form>

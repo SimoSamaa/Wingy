@@ -25,6 +25,7 @@ import { SquarePlus, ArrowUpWideNarrow, X } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import columns from './ColumnsTable';
+import debounce from '../../../lib/debounce.ts';
 import type Product from '@/types/productsTypes';
 
 const LazyAddProduct = React.memo(React.lazy(() => import('./AddProduct')));
@@ -45,11 +46,14 @@ const DataTable: React.FC<Props> = ({ data }) => {
 
   console.log('data table render');
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const debounceFilterChange = debounce((value: string) => {
     setFilterInput(value);
     table.getColumn("name")?.setFilterValue(value);
     table.getColumn("description")?.setFilterValue(value);
+  }, 300);
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debounceFilterChange(e.target.value);
   };
 
   const handleAddProductClick = () => {
@@ -95,13 +99,14 @@ const DataTable: React.FC<Props> = ({ data }) => {
           <ArrowUpWideNarrow className="size-5 absolute top-1/2 left-2 -translate-y-1/2 stroke-[1.5] text-muted-foreground " />
           <Input
             placeholder="Filter by name or description"
-            value={filterInput}
             onChange={handleFilterChange}
-            className="pl-9"
+            className="products-search pl-9"
+            defaultValue={filterInput}
           />
           {filterInput && (
             <button
               onClick={() => {
+                document.querySelector<HTMLInputElement>('.products-search')!.value = '';
                 setFilterInput("");
                 table.getColumn("name")?.setFilterValue("");
                 table.getColumn("description")?.setFilterValue("");
