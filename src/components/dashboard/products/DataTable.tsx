@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { SquarePlus, ArrowUpWideNarrow, X } from "lucide-react";
+import { SquarePlus, ArrowUpWideNarrow, X, Loader2 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import columns from './ColumnsTable';
@@ -32,9 +32,13 @@ const LazyAddProduct = React.memo(React.lazy(() => import('./AddProduct')));
 
 interface Props {
   data: Product[];
+  loadingState: {
+    isLoading: boolean;
+    loadProducts: () => void;
+  };
 }
 
-const DataTable: React.FC<Props> = ({ data }) => {
+const DataTable: React.FC<Props> = ({ data, loadingState }) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -153,7 +157,7 @@ const DataTable: React.FC<Props> = ({ data }) => {
             ))}
           </TableHeader>
           <TableBody>
-            {(table.getRowModel().rows.map((row) => (
+            {!loadingState.isLoading && (table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
@@ -170,11 +174,17 @@ const DataTable: React.FC<Props> = ({ data }) => {
             )))}
           </TableBody>
         </Table>
-        {!table.getRowModel().rows?.length && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-semibold">
-            No Products
-          </div>
-        )}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          {!table.getRowModel().rows?.length && !loadingState.isLoading && (
+            <div className='text-center grid gap-2 font-semibold'>
+              No Products
+              {data.length === 0 && (
+                <Button size='sm' onClick={loadingState.loadProducts}>Refresh Products</Button>
+              )}
+            </div>
+          )}
+          {loadingState.isLoading && (<Loader2 className="animate-spin text-primary size-20" />)}
+        </div>
       </div>
       <div className="flex items-center justify-end mt-8">
         <div className="space-x-2">

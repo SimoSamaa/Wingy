@@ -198,7 +198,7 @@ const ColumnsTable = (handelEditProduct: (product: Product) => void): ColumnDef<
     ),
     cell: ({ row }) => {
       const productDescription: string = row.getValue("description");
-      const productsChar: number = productDescription.length;
+      const productsChar: number = productDescription?.length;
 
       return (
         <TooltipProvider>

@@ -1,8 +1,5 @@
 const sendRequest = async <
-  T = {
-    message: string,
-    [key: string]: string;
-  },
+  T = Record<string, unknown>,
   P = object
 >(
   page: number | null = 1,

@@ -71,7 +71,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
       setProductData({
         name: currentProduct.name || '',
         description: currentProduct.description || '',
-        price: currentProduct.price.toString() || '',
+        price: currentProduct.price?.toString() || '',
         category: currentProduct.category || '',
         status: currentProduct.status || 'Available',
       });
