@@ -93,7 +93,7 @@ const initialState = {
     //   name: 'Iced Tea',
     //   status: 'Available',
     // },
-  ] as Product[]
+  ] as Product[],
 };
 
 const productsSlice = createSlice({

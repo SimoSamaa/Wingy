@@ -2,10 +2,10 @@ const sendRequest = async <
   T = Record<string, unknown>,
   P = object
 >(
-  page: number | null = 1,
   endPoint: string,
   method: string = 'GET',
   payload: P | null = null,
+  page: number | null = 1,
 ): Promise<T> => {
 
   const fetchOptions: RequestInit = {
@@ -14,8 +14,12 @@ const sendRequest = async <
   };
 
   if (method !== 'GET' && payload !== null) {
-    fetchOptions.headers = { 'Content-Type': 'application/json' };
-    fetchOptions.body = JSON.stringify(payload);
+    if (payload instanceof FormData) {
+      fetchOptions.body = payload;
+    } else {
+      fetchOptions.headers = { 'Content-Type': 'application/json' };
+      fetchOptions.body = JSON.stringify(payload);
+    }
   }
 
   const req = await fetch(`${import.meta.env.VITE_SERVER_URL}/${endPoint}?page=${page}`, fetchOptions);

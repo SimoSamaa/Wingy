@@ -19,7 +19,8 @@ import UploadImgProduct from './UploadImgProduct';
 import helpers from '@/lib/helpers';
 import type Product from '@/types/productsTypes';
 import { Separator } from '@/components/ui/separator';
-import { addProduct, editProduct } from '@/store/products/actions';
+import { addProduct, editProduct, uploadProductImage } from '@/store/products/actions';
+import dataURItoBlob from '@/lib/dataURItoBlob.ts';
 
 interface Props {
   isVisible: boolean;
@@ -117,10 +118,26 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
     const validationSuccess = validate();
     if (!validationSuccess) return;
 
-    const productPayload = { ...productData, image: uploadedImg };
+    const blobImages = dataURItoBlob(uploadedImg);
+    const path = 'dashboard/products';
 
     try {
       setIsLoading(true);
+
+      let image: string = currentProduct ? currentProduct.image : '';
+      if (!(uploadedImg && blobImages)) return;
+      if (currentProduct) {
+        // EDIT IMAGE PRODUCT
+        if (blobImages && uploadedImg !== currentProduct.image) {
+          image = await dispatch(uploadProductImage(path, blobImages));
+        }
+      } else {
+        // ADD IMAGE PRODUCT
+        image = await dispatch(uploadProductImage(path, blobImages));
+      }
+
+      const productPayload = { ...productData, image };
+
       if (currentProduct) {
         await dispatch(editProduct({
           id: currentProduct.id,
