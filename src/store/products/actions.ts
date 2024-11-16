@@ -1,20 +1,35 @@
 import type Product from '@/types/productsTypes';
 import sendRequest from '@/lib/sendRequest';
 import { productsActions } from './productsSlice';
-import { AppDispatch } from '../index';
+import { AppDispatch, RootState } from '../index';
+
+function shouldUpdate(lastFetch: number | null): boolean {
+  if (!lastFetch) return true; // If lastFetch is null, fetch products
+  const currentTime = new Date().getTime();
+  const timeDifference = currentTime - lastFetch;
+  return timeDifference > 1000 * 60 * 60;
+}
 
 export const fetchProducts = () => {
-  return async (dispatch: AppDispatch): Promise<void> => {
+  return async (
+    dispatch: AppDispatch,
+    getState: () => RootState
+  ): Promise<void> => {
+
+    const lastFetch = getState().products.lastFetch;
+    if (!shouldUpdate(lastFetch)) return;
+
     try {
       type Response = Omit<Product, 'id'> & { _id: string; __v: number; };
-
-      const res: Response[] = await sendRequest('products',);
+      const res: Response[] = await sendRequest('products');
       const products = res.map((product: Response) => {
         const { __v: _, _id, ...rest } = product;
         return { ...rest, id: _id };
       });
 
       dispatch(productsActions.setProducts(products));
+      dispatch(productsActions.setLastFetch(new Date().getTime()));
+
     } catch (error) {
       throw (error as Error).message;
     }

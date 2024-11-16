@@ -94,6 +94,7 @@ const initialState = {
     //   status: 'Available',
     // },
   ] as Product[],
+  lastFetch: null as number | null,
 };
 
 const productsSlice = createSlice({
@@ -106,11 +107,14 @@ const productsSlice = createSlice({
     setAddProduct(state, action: { payload: Product; }) {
       state.products.unshift(action.payload);
     },
-    setDeleteProduct(state, action) {
+    setDeleteProduct(state, action: { payload: string; }) {
       state.products = state.products.filter((product) => product.id !== action.payload);
     },
-    setEditProduct(state, action) {
+    setEditProduct(state, action: { payload: Product; }) {
       state.products = state.products.map((product) => product.id === action.payload.id ? action.payload : product);
+    },
+    setLastFetch(state, action: { payload: number; }) {
+      state.lastFetch = action.payload;
     }
   }
 });

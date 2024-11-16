@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { z } from 'zod';
+import { set, z } from 'zod';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store/index';
 import { Loader2 } from 'lucide-react';
@@ -262,6 +262,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
               onValueChange={(value) => {
                 setProductData((prev) => ({ ...prev, category: value }));
                 setIsModified(true);
+                setErrorsProduct((prev) => ({ ...prev, category: '' }));
               }}>
               <SelectTrigger
                 id="category"
