@@ -7,14 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui//label';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import PasswordButton from '@/components/ui/PasswordButton';
 import router from '@/router';
 import helpers from '@/lib/helpers';
 
 const SignupPage = () => {
   const navigate = useNavigate();
-  const { useChangeInput, useValidation } = helpers();
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const { useInputChange, useValidation } = helpers();
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
   const [signupForm, setSignupForm] = useState({ email: '', password: '', confirmPassword: '' });
   const [errorsForm, setErrorsForm] = useState<Record<string, string>>({});
@@ -75,48 +73,39 @@ const SignupPage = () => {
         )}
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label>Email</Label>
             <Input
-              id="email"
               type="text"
               placeholder="m@example.com"
               value={signupForm.email}
-              onChange={useChangeInput(setSignupForm, errorsForm, setErrorsForm)}
               error={errorsForm.email}
+              onChange={useInputChange('email', setSignupForm, setErrorsForm, errorsForm)}
             />
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
-              <Label htmlFor="password">Password</Label>
+              <Label>Password</Label>
             </div>
-            <div className='relative'>
-              <Input
-                id="password"
-                type="password"
-                ref={passwordRef}
-                placeholder='********'
-                value={signupForm.password}
-                onChange={useChangeInput(setSignupForm, errorsForm, setErrorsForm)}
-                error={errorsForm.password}
-              />
-              <PasswordButton ele={passwordRef} />
-            </div>
+            <Input
+              type="password"
+              placeholder='********'
+              value={signupForm.password}
+              error={errorsForm.password}
+              onChange={useInputChange('password', setSignupForm, setErrorsForm, errorsForm)}
+            />
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label>Confirm Password</Label>
             </div>
-            <div className='relative'>
-              <Input id="confirmPassword"
-                type="password"
-                ref={confirmPasswordRef}
-                placeholder='********'
-                value={signupForm.confirmPassword}
-                onChange={useChangeInput(setSignupForm, errorsForm, setErrorsForm)}
-                error={errorsForm.confirmPassword}
-              />
-              <PasswordButton ele={confirmPasswordRef} />
-            </div>
+            <Input
+              type="password"
+              ref={confirmPasswordRef}
+              placeholder='********'
+              value={signupForm.confirmPassword}
+              error={errorsForm.confirmPassword}
+              onChange={useInputChange('confirmPassword', setSignupForm, setErrorsForm, errorsForm)}
+            />
           </div>
           <Button type="submit" className="w-full">
             Sign Up

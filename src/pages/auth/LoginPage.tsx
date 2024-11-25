@@ -6,17 +6,17 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui//label';
 import { Input } from '@/components/ui/input';
-import PasswordButton from '@/components/ui/PasswordButton';
 import router from '@/router';
 import helpers from '@/lib/helpers';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { useChangeInput, useValidation } = helpers();
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const { useInputChange, useValidation } = helpers();
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [errorsForm, setErrorsForm] = useState<Record<string, string>>({});
   // const [isLoading, setLoading] = useState(false);
+
+  console.log('login render');
 
   const loginSchema = z.object({
     email: z.string()
@@ -56,19 +56,23 @@ const LoginPage = () => {
         </div>
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label>Email</Label>
             <Input
-              id="email"
               type="text"
               placeholder="m@example.com"
               value={loginForm.email}
-              onChange={useChangeInput(setLoginForm, errorsForm, setErrorsForm)}
               error={errorsForm.email}
+              onChange={useInputChange(
+                'email',
+                setLoginForm,
+                setErrorsForm,
+                errorsForm
+              )}
             />
           </div>
           <div className="grid gap-2">
             <div className="flex items-center">
-              <Label htmlFor="password">Password</Label>
+              <Label>Password</Label>
               <Link
                 to="#"
                 className="ml-auto inline-block text-sm underline"
@@ -76,18 +80,18 @@ const LoginPage = () => {
                 Forgot your password?
               </Link>
             </div>
-            <div className='relative'>
-              <Input
-                id="password"
-                type="password"
-                ref={passwordRef}
-                placeholder="********"
-                value={loginForm.password}
-                onChange={useChangeInput(setLoginForm, errorsForm, setErrorsForm)}
-                error={errorsForm.password}
-              />
-              <PasswordButton ele={passwordRef} />
-            </div>
+            <Input
+              type="password"
+              placeholder="********"
+              value={loginForm.password}
+              error={errorsForm.password}
+              onChange={useInputChange(
+                'password',
+                setLoginForm,
+                setErrorsForm,
+                errorsForm
+              )}
+            />
           </div>
           <Button type="submit" className="w-full">
             Login
