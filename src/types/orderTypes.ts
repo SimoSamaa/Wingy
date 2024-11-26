@@ -4,7 +4,6 @@ interface Order {
   date: string;
   fullName: string;
   totalPrice: string;
-  paymentMethod: string;
   status: string;
   details: {
     name: string;
@@ -16,4 +15,17 @@ interface Order {
   phone: string;
 }
 
-export default Order;
+interface OrdersInfo {
+  totalOrders: string,
+  newOrdersToday: string,
+  totalRevenue: string,
+  revenueSteam: string,
+}
+
+interface InitialOrdersState {
+  orders: Order[];
+  totalItems: number;
+  ordersInfo: OrdersInfo | {};
+};
+
+export type { Order, InitialOrdersState, OrdersInfo };

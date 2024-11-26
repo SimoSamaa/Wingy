@@ -1,19 +1,27 @@
 import React, { useMemo } from 'react';
-import { useSelector } from 'react-redux';
 import { Card, CardTitle } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress";
 import { Star } from 'lucide-react';
-import { RootState } from '@/store/index.ts';
+import type { Ratings } from '@/types/starRatingsTypes';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const Rating = () => {
-  const rating = useSelector((state: RootState) => state.rating);
+interface RatingProps {
+  payload: {
+    isLoading: boolean;
+    ratings: Ratings | {};
+  };
+}
+
+const Rating: React.FC<RatingProps> = ({ payload }) => {
+  const { ratings } = payload;
+  const rating = ratings as Ratings;
 
   const ratingsData = useMemo(() => [
-    { star: 5, rating: rating.fiveStars },
-    { star: 4, rating: rating.fourStars },
-    { star: 3, rating: rating.threeStars },
-    { star: 2, rating: rating.twoStars },
-    { star: 1, rating: rating.oneStar },
+    { star: 5, rating: rating?.fiveStars || 0 },
+    { star: 4, rating: rating?.fourStars || 0 },
+    { star: 3, rating: rating?.threeStars || 0 },
+    { star: 2, rating: rating?.twoStars || 0 },
+    { star: 1, rating: rating?.oneStar || 0 },
   ], [rating]);
 
   const averageRating = useMemo(() => {
@@ -24,7 +32,7 @@ const Rating = () => {
       (2 * rating.twoStars) +
       (1 * rating.oneStar);
 
-    return (totalStars / rating.totalReviews).toFixed(1);
+    return (totalStars / rating.totalReviews || 0).toFixed(1);
   }, [rating]);
 
   // Helper function to calculate the percentage for each star rating
@@ -32,6 +40,11 @@ const Rating = () => {
 
   return (
     <Card className='px-6 py-4 grid gap-2'>
+      {payload.isLoading && (
+        <div className='bg-card rounded-lg absolute inset-0 z-[10]'>
+          <Skeleton className='size-full' />
+        </div>
+      )}
       <div className='flex items-center gap-2 mx-auto w-fit'>
         <CardTitle className='font-bold'>{averageRating}</CardTitle>
         <Star className='text-yellow-500 size-[30px] fill-yellow-500' />

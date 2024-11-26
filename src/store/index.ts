@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './auth';
-import ratingReducer from './starRatings';
+import ratingReducer from './ratings/ratingsSlice';
 import ordersReducer from './orders/orderSlice';
 import productsReducer from './products/productsSlice';
 
