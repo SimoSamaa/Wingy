@@ -1,6 +1,5 @@
 import React, { Dispatch, SetStateAction } from 'react';
 import { ZodObject, ZodRawShape, ZodEffects } from 'zod';
-import debounce from './debounce';
 
 const helpers = () => {
 
@@ -11,17 +10,13 @@ const helpers = () => {
     cb: () => void = () => { }
   ) => {
 
-    const setFormDebounced = debounce((id: string, value: string) => {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { id, value } = e.target;
+
       setForm((prev) => ({
         ...prev,
         [id]: value,
       }));
-    }, 500, true);
-
-    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { id, value } = e.target;
-
-      setFormDebounced(id, value);
 
       // Clear the error message when the user corrects the input
       if (errorsForm[id]) {
@@ -32,6 +27,29 @@ const helpers = () => {
       }
 
       if (typeof cb === 'function') cb();
+    };
+  };
+
+  const useInputChange = <T extends Record<string, any>>(
+    key: string,
+    setForm: React.Dispatch<React.SetStateAction<T>>,
+    setErrorsForm: React.Dispatch<React.SetStateAction<Record<string, string>>>,
+    errorsForm: Record<string, string>
+  ) => {
+    return (value: string) => {
+      // Update the form state
+      setForm((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+
+      // Clear the error message if the user corrects the input
+      if (errorsForm[key]) {
+        setErrorsForm((prev) => ({
+          ...prev,
+          [key]: "",
+        }));
+      }
     };
   };
 
@@ -58,7 +76,7 @@ const helpers = () => {
     };
   };
 
-  return { useChangeInput, useValidation };
+  return { useChangeInput, useInputChange, useValidation };
 
 };
 
