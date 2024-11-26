@@ -1,11 +1,12 @@
 import React from 'react';
-import type Order from '@/types/orderTypes';
+import type { Order } from '@/types/orderTypes';
 import courier from '@/assets/orders/courier.png';
 import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreditCard, User, PackageX } from 'lucide-react';
 import OrdersButtons from './includes/OrdersButtons';
 import OrdersPagination from './includes/OrdersPagination';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Props {
   orders: Order[];
@@ -42,7 +43,9 @@ const CurrentOrders: React.FC<Props> = ({
         </div>
       )}
       {loading && (
-        <h1 className='text-3xl'>loading...</h1>
+        <div className='bg-card rounded-lg absolute inset-0'>
+          <Skeleton className='size-full' />
+        </div>
       )}
       {orders.length > 0 && !loading && (
         <ul>
@@ -70,7 +73,7 @@ const CurrentOrders: React.FC<Props> = ({
                     </p>
                     <p className='text-muted-foreground text-xs flex gap-1 items-center'>
                       <CreditCard className='size-4 stroke-[1.5] ml-[2px]' />
-                      {order.totalPrice}DH ({order.paymentMethod})
+                      {order.totalPrice}DH
                     </p>
                   </div>
                 </div>
