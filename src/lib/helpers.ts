@@ -2,39 +2,12 @@ import React, { Dispatch, SetStateAction } from 'react';
 import { ZodObject, ZodRawShape, ZodEffects } from 'zod';
 
 const helpers = () => {
-
-  const useChangeInput = <T = object>(
-    setForm: Dispatch<SetStateAction<T>>,
-    errorsForm: Record<string, string>,
-    setErrorsForm: Dispatch<SetStateAction<Record<string, string>>>,
-    cb: () => void = () => { }
-  ) => {
-
-    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { id, value } = e.target;
-
-      setForm((prev) => ({
-        ...prev,
-        [id]: value,
-      }));
-
-      // Clear the error message when the user corrects the input
-      if (errorsForm[id]) {
-        setErrorsForm((prev) => ({
-          ...prev,
-          [id]: '',
-        }));
-      }
-
-      if (typeof cb === 'function') cb();
-    };
-  };
-
   const useInputChange = <T extends Record<string, any>>(
     key: string,
     setForm: React.Dispatch<React.SetStateAction<T>>,
     setErrorsForm: React.Dispatch<React.SetStateAction<Record<string, string>>>,
-    errorsForm: Record<string, string>
+    errorsForm: Record<string, string>,
+    cb: () => void = () => { }
   ) => {
     return (value: string) => {
       // Update the form state
@@ -50,6 +23,8 @@ const helpers = () => {
           [key]: "",
         }));
       }
+
+      if (typeof cb === 'function') cb();
     };
   };
 
@@ -76,7 +51,7 @@ const helpers = () => {
     };
   };
 
-  return { useChangeInput, useInputChange, useValidation };
+  return { useInputChange, useValidation };
 
 };
 
