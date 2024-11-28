@@ -1,24 +1,48 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import { cn } from "@/lib/utils";
+import debounce from "@/lib/debounce.ts";
 
 export interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  inputStyle?: string;
+  extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange"> {
+  debounce?: number;
+  onChange?: (value: string) => void;
   error?: string;
-  maxlength?: number;
-  value?: string;
+  inputStyle?: string;
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, inputStyle, error, maxlength = 300, ...props }, ref) => {
+  ({ className, value, inputStyle, error, onChange = () => { }, debounce: delay, maxLength = 300, ...props }, ref) => {
     const [count, setCount] = useState(0);
-    useEffect(() => setCount(props.value?.length || 0), [props.value]);
+    const [localValue, setLocalValue] = useState(value || "");
+
+    useEffect(() => {
+      if (value !== undefined) {
+        setLocalValue(value);
+      }
+    }, [value]);
+
+    useEffect(() => setCount(String(localValue).length || 0), [String(localValue).length]);
+
+    const handleChange = useCallback(
+      delay
+        ? debounce((newValue: string) => onChange(newValue), delay)
+        : (newValue: string) => onChange(newValue),
+      [onChange, delay]
+    );
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const newValue = e.target.value;
+      setLocalValue(newValue);
+      handleChange(newValue);
+    };
 
     return (
       <div className="relative">
         <textarea
-          maxLength={maxlength}
+          maxLength={maxLength}
+          onChange={handleInputChange}
+          value={localValue}
           onInput={(e) => {
             const length = (e.target as HTMLTextAreaElement).value.length;
             setCount(length);
@@ -34,7 +58,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         />
         <div className="flex justify-between mt-1 text-xs">
           {error && <p className='text-red-500'>{error}</p>}
-          <div className="ml-auto">{`${count}/${maxlength}`}</div>
+          <div className="ml-auto">{`${count}/${maxLength}`}</div>
         </div>
       </div>
     );
