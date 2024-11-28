@@ -4,8 +4,8 @@ import courier from '@/assets/orders/courier.png';
 import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreditCard, User, PackageX } from 'lucide-react';
-import OrdersButtons from './includes/OrdersButtons';
-import OrdersPagination from './includes/OrdersPagination';
+import OrdersButtons from '../includes/OrdersButtons';
+import OrdersPagination from '../includes/OrdersPagination';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Props {
