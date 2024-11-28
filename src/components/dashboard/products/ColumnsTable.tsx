@@ -41,7 +41,7 @@ import {
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from '@/components/ui/button';
-import type Product from "@/types/productsTypes";
+import type { Product } from "@/types/productsTypes";
 
 interface Row {
   getValue: (value: string) => void;
@@ -205,8 +205,8 @@ const ColumnsTable = (handelEditProduct: (product: Product) => void): ColumnDef<
           <Tooltip>
             <TooltipTrigger asChild>
               <p
-                className="text-nowrap w-[316px] overflow-hidden text-ellipsis pl-4">
-                {productDescription}
+                className="text-nowrap pl-4 w-fit">
+                {productsChar >= 50 ? `${productDescription.slice(0, 50)}...` : productDescription}
               </p>
             </TooltipTrigger>
             {productsChar >= 50 &&

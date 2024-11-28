@@ -1,4 +1,4 @@
-import type Product from '@/types/productsTypes';
+import type { Product } from '@/types/productsTypes';
 import sendRequest from '@/lib/sendRequest';
 import { productsActions } from './productsSlice';
 import { AppDispatch, RootState } from '../index';

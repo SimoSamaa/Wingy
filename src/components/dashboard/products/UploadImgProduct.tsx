@@ -18,7 +18,7 @@ const UploadImgProduct: React.FC<Props> = ({ payload }) => {
   const handleUploadImg = (file: File) => {
     const maxSize = 1024 * 1024; //1MB
     const reader = new FileReader();
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/gif'];
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
 
     // Check if file is an image
     if (!allowedTypes.includes(file.type)) {

@@ -8,4 +8,9 @@ interface Product {
   status: string;
 }
 
-export default Product;
+interface InitialProductsState {
+  products: Product[];
+  lastFetch: number | null;
+}
+
+export type { Product, InitialProductsState };

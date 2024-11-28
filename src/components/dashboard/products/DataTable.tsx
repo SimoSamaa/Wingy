@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   ColumnFiltersState,
@@ -25,8 +25,7 @@ import { SquarePlus, ArrowUpWideNarrow, X, Loader2 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import columns from './ColumnsTable';
-import debounce from '../../../lib/debounce.ts';
-import type Product from '@/types/productsTypes';
+import type { Product } from '@/types/productsTypes';
 
 const LazyAddProduct = React.memo(React.lazy(() => import('./AddProduct')));
 
@@ -47,18 +46,6 @@ const DataTable: React.FC<Props> = ({ data, loadingState }) => {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
-
-  console.log('data table render');
-
-  const debounceFilterChange = debounce((value: string) => {
-    setFilterInput(value);
-    table.getColumn("name")?.setFilterValue(value);
-    table.getColumn("description")?.setFilterValue(value);
-  }, 300);
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    debounceFilterChange(e.target.value);
-  };
 
   const handleAddProductClick = () => {
     setCurrentProduct(null);
@@ -96,30 +83,23 @@ const DataTable: React.FC<Props> = ({ data, loadingState }) => {
     },
   });
 
+  useEffect(() => {
+    table.getColumn("name")?.setFilterValue(filterInput);
+    table.getColumn("description")?.setFilterValue(filterInput);
+  }, [filterInput]);
+
   return (
     <div className="w-full">
       <div className="flex justify-between items-center py-4 gap-4 max-[450px]:flex-col">
         <div className="relative w-[min(384px,100%)]">
           <ArrowUpWideNarrow className="size-5 absolute top-1/2 left-2 -translate-y-1/2 stroke-[1.5] text-muted-foreground " />
           <Input
+            type='search'
             placeholder="Filter by name or description"
-            onChange={handleFilterChange}
+            onChange={setFilterInput}
+            debounce={300}
             className="products-search pl-9"
-            defaultValue={filterInput}
           />
-          {filterInput && (
-            <button
-              onClick={() => {
-                document.querySelector<HTMLInputElement>('.products-search')!.value = '';
-                setFilterInput("");
-                table.getColumn("name")?.setFilterValue("");
-                table.getColumn("description")?.setFilterValue("");
-              }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 outline-none hover:bg-muted focus-visible:bg-muted rounded-full p-1"
-            >
-              <X className="text-muted-foreground size-5" />
-            </button>
-          )}
         </div>
         <Button
           className="max-[450px]:w-[min(384px,100%)] flex items-center"

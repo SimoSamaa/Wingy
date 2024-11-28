@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { set, z } from 'zod';
+import { z } from 'zod';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store/index';
 import { Loader2 } from 'lucide-react';
@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import UploadImgProduct from './UploadImgProduct';
 import helpers from '@/lib/helpers';
-import type Product from '@/types/productsTypes';
+import type { Product } from '@/types/productsTypes';
 import { Separator } from '@/components/ui/separator';
 import { addProduct, editProduct, uploadProductImage } from '@/store/products/actions';
 import dataURItoBlob from '@/lib/dataURItoBlob.ts';
@@ -30,10 +30,8 @@ interface Props {
 
 const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { useChangeInput, useValidation } = helpers();
+  const { useInputChange, useValidation } = helpers();
   const { toast } = useToast();
-
-  // console.log('add products render');
 
   const selectedStatusRef = useRef<HTMLButtonElement>(null);
   const [currentStatus, setCurrentStatus] = useState(0);
@@ -93,10 +91,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
 
   useEffect(() => {
     setCurrentStatus(statuses.indexOf(productData.status));
-    if (selectedStatusRef.current) {
-      selectedStatusRef.current.style.left = productData.status === 'Available' ? '0%' : '50%';
-    }
-  }, [statuses, productData]);
+  }, [productData.status]);
 
   const handleClose = () => {
     setErrorsProduct({});
@@ -201,12 +196,15 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
               inputStyle='inputProduct'
               id='name'
               maxLength={50}
+              debounce={300}
               onChange={
-                useChangeInput(
+                useInputChange(
+                  'name',
                   setProductData,
-                  errorsProduct,
                   setErrorsProduct,
-                  () => setIsModified(true))}
+                  errorsProduct,
+                  () => setIsModified(true)
+                )}
               value={productData.name}
               error={errorsProduct.name}
             />
@@ -219,11 +217,13 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
               id='description'
               inputStyle='inputProduct'
               error={errorsProduct.description}
+              debounce={300}
               onChange={
-                useChangeInput(
+                useInputChange(
+                  'description',
                   setProductData,
-                  errorsProduct,
                   setErrorsProduct,
+                  errorsProduct,
                   () => setIsModified(true)
                 )}
               value={productData.description}
@@ -244,10 +244,11 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
                 min='0'
                 error={errorsProduct.price}
                 onChange={
-                  useChangeInput(
+                  useInputChange(
+                    'price',
                     setProductData,
-                    errorsProduct,
                     setErrorsProduct,
+                    errorsProduct,
                     () => setIsModified(true)
                   )}
                 value={productData.price.toString()}
@@ -289,6 +290,7 @@ const AddProduct: React.FC<Props> = ({ isVisible, onClose, currentProduct }) => 
             <div className='mt-1 flex bg-muted/40 border rounded-md border-gray-400 h-[40px] relative'>
               <span
                 ref={selectedStatusRef}
+                style={{ left: `${currentStatus * (100) / 2}%` }}
                 className='w-1/2 bg-primary absolute border-2 border-[#f8f8f8] left-0 h-full rounded-md duration-300 ease-out'></span>
               {statuses.map((status, ind) => (
                 <button

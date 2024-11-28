@@ -10,7 +10,6 @@ import DataTable from '@/components/dashboard/products/DataTable';
 let isMounted: boolean = true;
 
 const ProductsPage = () => {
-  console.log('products page render');
   const dispatch = useDispatch<AppDispatch>();
   const { toast } = useToast();
   const products = useSelector((state: RootState) => state.products.products);
