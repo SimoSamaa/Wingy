@@ -26,7 +26,7 @@ const HomePage = () => {
   const ratings = useSelector((state: RootState) => state.rating.ratings);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState({ orders: false, ordersInfo: false, ratings: false });
 
   // => START FETCH ORDERS FUNCTION
   const loadOrders = useCallback(async () => {
@@ -36,7 +36,7 @@ const HomePage = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoading((prevLoading) => ({ ...prevLoading, orders: true }));
 
     try {
       await dispatch(fetchOrders(currentPage));
@@ -47,8 +47,7 @@ const HomePage = () => {
         description: error as string,
       });
     } finally {
-      setIsLoading(false);
-
+      setIsLoading((prevLoading) => ({ ...prevLoading, orders: false }));
     }
 
   }, [dispatch, currentPage]);
@@ -62,8 +61,7 @@ const HomePage = () => {
       return;
     }
 
-    setIsLoading(true);
-
+    setIsLoading((prevLoading) => ({ ...prevLoading, ordersInfo: true }));
     try {
       await dispatch(fetchOrdersInfo());
     } catch (error) {
@@ -73,7 +71,7 @@ const HomePage = () => {
         description: error as string,
       });
     } finally {
-      setIsLoading(false);
+      setIsLoading((prevLoading) => ({ ...prevLoading, ordersInfo: false }));
     }
 
   }, [dispatch]);
@@ -87,7 +85,7 @@ const HomePage = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoading((prevLoading) => ({ ...prevLoading, ratings: true }));
 
     try {
       await dispatch(fetchRatingsInfo());
@@ -98,17 +96,15 @@ const HomePage = () => {
         description: error as string,
       });
     } finally {
-      setIsLoading(false);
+      setIsLoading((prevLoading) => ({ ...prevLoading, ratings: false }));
     }
 
   }, [dispatch]);
   // => END FETCH RATINGS INFO FUNCTION
 
-  useEffect(() => {
-    loadOrders();
-    loadOrdersInfo();
-    loadRatings();
-  }, [loadOrders, loadOrdersInfo, loadRatings]);
+  useEffect(() => { loadOrders(); }, [loadOrders]);
+  useEffect(() => { loadOrdersInfo(); }, [loadOrdersInfo]);
+  useEffect(() => { loadRatings(); }, [loadRatings]);
 
   useEffect(() => {
     if (orders.length > 0) {
@@ -139,16 +135,31 @@ const HomePage = () => {
       <div>
         <div className='grid gap-5 grid-cols-2 max-xl:grid-cols-1'>
           <div className='grid gap-5 grid-cols-2 max-xl:order-1'>
-            <TotalOrders payload={{ totalOrders: ordersInfo?.totalOrders || '0', isLoading }} />
-            <NewOrders payload={{ newOrdersToday: ordersInfo?.newOrdersToday || '0', isLoading }} />
-            <TotalRevenue payload={{ totalRevenue: ordersInfo?.totalRevenue || '0', isLoading }} />
-            <RevenueSteam payload={{ revenueSteam: ordersInfo?.revenueSteam || '0', isLoading }} />
+            <TotalOrders payload={{
+              totalOrders: ordersInfo?.totalOrders || '0',
+              isLoading: isLoading.ordersInfo
+            }} />
+            <NewOrders payload={{
+              newOrdersToday: ordersInfo?.newOrdersToday || '0',
+              isLoading: isLoading.ordersInfo
+            }} />
+            <TotalRevenue payload={{
+              totalRevenue: ordersInfo?.totalRevenue || '0',
+              isLoading: isLoading.ordersInfo
+            }} />
+            <RevenueSteam payload={{
+              revenueSteam: ordersInfo?.revenueSteam || '0',
+              isLoading: isLoading.ordersInfo
+            }} />
           </div>
-          <Rating payload={{ ratings, isLoading }} />
+          <Rating payload={{
+            ratings,
+            isLoading: isLoading.ratings
+          }} />
         </div>
         <CurrentOrders
           orders={orders}
-          loading={isLoading}
+          loading={isLoading.orders}
           onSelectOrder={setSelectedOrderId}
           onLoadOrders={loadOrders}
           selectedOrderId={selectedOrderId}
@@ -162,7 +173,7 @@ const HomePage = () => {
         onChangeColorStatus={orderStatus}
         onSelectOrder={setSelectedOrderId}
         pagination={{ currentPage, setCurrentPage }}
-        loading={isLoading}
+        loading={isLoading.orders}
       />
     </main>
   );
