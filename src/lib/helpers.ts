@@ -51,8 +51,23 @@ const helpers = () => {
     };
   };
 
-  return { useInputChange, useValidation };
+  const useOrderStatusClass = (status: string, style: string) => {
+    switch (style) {
+      case 'text': return status === 'Prepared'
+        ? 'text-green-500' : status === 'Preparing'
+          ? 'text-orange-500' : status === 'Pending'
+            ? 'text-yellow-500' : 'text-blue-500';
 
+      case 'bg': return status === 'Prepared'
+        ? 'bg-green-500' : status === 'Preparing'
+          ? 'bg-orange-500' : status === 'Pending'
+            ? 'bg-yellow-500' : 'bg-blue-500';
+
+      default: return '';
+    };
+  };
+
+  return { useInputChange, useValidation, useOrderStatusClass };
 };
 
 export default helpers;
