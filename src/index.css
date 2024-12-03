@@ -65,26 +65,16 @@
   @apply text-foreground;
 }
 
-.custom-input::-webkit-search-cancel-button {
-  display: none;
-}
-
-.custom-input::-moz-search-cancel-button {
-  display: none;
-}
-
-@layer utilities {
-
-  /* HOME ORDERS PAGINATION */
-  @media (max-width: 850px) {
-    .home-order__details-pagination {
-      @apply !flex;
-    }
+.custom-input {
+  svg {
+    @apply text-muted-foreground;
   }
 
-  @media (min-width: 850px) {
-    .home-current__order-pagination {
-      @apply !flex;
-    }
+  input::-webkit-search-cancel-button {
+    @apply hidden;
+  }
+  
+  input::-moz-search-cancel-button {
+    @apply hidden;
   }
 }

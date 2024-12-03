@@ -37,7 +37,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div>
-        <div className="relative">
+        <div className=" custom-input relative">
           {/* INPUT SEARCH */}
           {type === "search" && (
             <Search className="absolute top-1/2 left-3 -translate-y-1/2 size-5" />
@@ -67,7 +67,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             value={localValue}
             onChange={handleInputChange}
             className={cn(
-              `${type === "search" ? "px-9" : "px-3"} custom-input flex h-10 w-full rounded-md border bg-background py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 hover:border-primary focus:border-primary outline-none ring-primary/50 ring-offset-0 focus:ring transition-shadow duration-300 ease-in-out`,
+              `${type === "search" ? "pl-9 pr-5" : "px-3"} flex h-10 w-full rounded-md border bg-background py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 hover:border-primary focus:border-primary outline-none ring-primary/50 ring-offset-0 focus:ring transition-shadow duration-300 ease-in-out`,
               {
                 "!border-red-500 !ring-red-300": error,
               },
