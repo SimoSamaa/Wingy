@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import router from '@/router.ts';
 import {
   Tooltip,
   TooltipContent,
@@ -11,9 +12,9 @@ import {
   Settings,
   Home,
   List,
-  ShoppingCart,
   Backpack,
-  Bell
+  Bell,
+  ShoppingBag
 } from "lucide-react";
 
 const NavigationBar = () => {
@@ -31,7 +32,7 @@ const NavigationBar = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <NavLink
-                to="/dashboard/home"
+                to={router.dashboardRoot.children.home.path}
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                 end
               >
@@ -44,7 +45,7 @@ const NavigationBar = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <NavLink
-                to="/dashboard/products"
+                to={router.dashboardRoot.children.products.path}
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
                 <List className="h-5 w-5" />
@@ -56,10 +57,10 @@ const NavigationBar = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <NavLink
-                to="/login"
+                to={router.dashboardRoot.children.orders.path}
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <ShoppingCart className="h-5 w-5" />
+                <ShoppingBag className="h-5 w-5" />
                 <span className="sr-only">Orders</span>
               </NavLink>
             </TooltipTrigger>

@@ -15,9 +15,10 @@ const App = () => {
       router.authRoot.Children.login.path,
       router.authRoot.Children.signup.path,
       router.dashboardRoot.children.home.path,
-      router.dashboardRoot.children.products.path
+      router.dashboardRoot.children.products.path,
+      router.dashboardRoot.children.orders.path
     ];
-    const pageTitle = ['Login', 'Signup', 'Home', 'Products'];
+    const pageTitle = ['Login', 'Signup', 'Home', 'Products', 'Orders'];
     const pageIndex = pagesPath.indexOf(location.pathname);
 
     if (pageIndex !== -1) {
@@ -63,6 +64,9 @@ const App = () => {
             <Route
               path={router.dashboardRoot.children.products.path}
               element={<router.dashboardRoot.children.products.Ele />} />
+            <Route
+              path={router.dashboardRoot.children.orders.path}
+              element={<router.dashboardRoot.children.orders.Ele />} />
           </Route>
 
           {/* 404 PAGE */}

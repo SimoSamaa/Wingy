@@ -7,7 +7,7 @@ import {
   Package2,
   PanelLeft,
   Search,
-  ShoppingCart,
+  ShoppingBag,
   List,
   Backpack,
   Bell,
@@ -76,10 +76,10 @@ const DashboardHeader = () => {
               Products
             </NavLink>
             <NavLink
-              to="/"
+              to={router.dashboardRoot.children.orders.path}
               className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingBag className="h-5 w-5" />
               Orders
             </NavLink>
             <NavLink
@@ -115,9 +115,9 @@ const DashboardHeader = () => {
       <div className="relative ml-auto flex-1 md:grow-0">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          type="text"
+          type="search"
           placeholder="Search..."
-          className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
+          className="w-full md:w-[200px] lg:w-[336px]"
         />
       </div>
       <DropdownMenu>

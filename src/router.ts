@@ -32,6 +32,11 @@ const routes = {
         name: 'products',
         path: '/dashboard/products',
         Ele: lazy(() => import('@/pages/dashboard/dashboardPages/ProductsPage')),
+      },
+      orders: {
+        name: 'orders',
+        path: '/dashboard/orders',
+        Ele: lazy(() => import('@/pages/dashboard/dashboardPages/OrdersPage')),
       }
     }
   },

@@ -10,7 +10,7 @@ import TotalRevenue from '@/components/dashboard/home/TotalRevenue';
 import RevenueSteam from '@/components/dashboard/home/RevenueSteam';
 import Rating from '@/components/dashboard/home/Rating';
 import CurrentOrders from '@/components/dashboard/home/CurrentOrders';
-import OrderDetails from '@/components/dashboard/home/OrderDetails';
+import OrderDetails from '@/components/dashboard/includes/OrderDetails';
 import type { OrdersInfo } from '@/types/orderTypes';
 
 // WORK JUST IN DEVELOPMENT MODE
@@ -112,24 +112,6 @@ const HomePage = () => {
     }
   }, [orders]);
 
-  const orderStatus = (status: string, style: string) => {
-    if (style === 'text') {
-      return status === 'Prepared'
-        ? 'text-green-500' : status === 'Preparing'
-          ? 'text-yellow-500' : status === 'Pending'
-            ? 'text-red-500' : 'text-blue-500';
-    }
-
-    if (style === 'bg') {
-      return status === 'Prepared'
-        ? 'bg-green-500' : status === 'Preparing'
-          ? 'bg-yellow-500' : status === 'Pending'
-            ? 'bg-red-500' : 'bg-blue-500';
-    }
-
-    return '';
-  };
-
   return (
     <main className="grid grid-cols-[1fr_30%] gap-5 max-xl:block">
       <div>
@@ -163,16 +145,13 @@ const HomePage = () => {
           onSelectOrder={setSelectedOrderId}
           onLoadOrders={loadOrders}
           selectedOrderId={selectedOrderId}
-          onChangeColorStatus={orderStatus}
           pagination={{ currentPage, setCurrentPage }}
         />
       </div>
       <OrderDetails
         orders={orders}
         orderId={selectedOrderId}
-        onChangeColorStatus={orderStatus}
         onSelectOrder={setSelectedOrderId}
-        pagination={{ currentPage, setCurrentPage }}
         loading={isLoading.orders}
       />
     </main>

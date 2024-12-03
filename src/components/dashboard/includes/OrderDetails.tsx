@@ -2,30 +2,26 @@ import React, { useMemo } from 'react';
 import type { Order } from '@/types/orderTypes';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from "@/components/ui/separator";
-import OrdersButtons from '../includes/OrdersButtons';
+import OrdersButtons from './OrdersButtons';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import helpers from '@/lib/helpers';
 
 interface Props {
   orders: Order[];
   orderId: string | null;
-  onChangeColorStatus: (status: string, style: string) => string;
   onSelectOrder: (id: string) => void;
   loading: boolean;
-  pagination: {
-    currentPage: number,
-    setCurrentPage: (page: number) => void;
-  };
 }
 
 const OrderDetails: React.FC<Props> = ({
   orders,
   orderId,
   loading,
-  onChangeColorStatus,
   onSelectOrder,
-  pagination
 }) => {
+
+  const { useOrderStatusClass } = helpers();
 
   const orderIndex = useMemo(() => {
     return orders.findIndex((order) => order.id === orderId);
@@ -64,8 +60,8 @@ const OrderDetails: React.FC<Props> = ({
                         ID_{order?.orderId}
                       </CardTitle>
                       <div className='flex gap-1 items-center'>
-                        <span className={`size-3 rounded-full ${onChangeColorStatus(order?.status ?? '', 'bg')}`}></span>
-                        <p className={`font-semibold ${onChangeColorStatus(order?.status ?? '', 'text')}`}>{order?.status}</p>
+                        <span className={`size-3 rounded-full ${useOrderStatusClass(order?.status ?? '', 'bg')}`}></span>
+                        <p className={`font-semibold ${useOrderStatusClass(order?.status ?? '', 'text')}`}>{order?.status}</p>
                       </div>
                     </div>
                     {order && <OrdersButtons payload={{ id: order.id, status: order.status }} />}

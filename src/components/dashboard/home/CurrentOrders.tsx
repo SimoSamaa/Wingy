@@ -7,6 +7,7 @@ import { CreditCard, User, PackageX } from 'lucide-react';
 import OrdersButtons from '../includes/OrdersButtons';
 import OrdersPagination from '../includes/OrdersPagination';
 import { Skeleton } from '@/components/ui/skeleton';
+import helpers from '@/lib/helpers';
 
 interface Props {
   orders: Order[];
@@ -14,7 +15,6 @@ interface Props {
   selectedOrderId: string | null;
   onSelectOrder: (id: string) => void;
   onLoadOrders: () => Promise<void>;
-  onChangeColorStatus: (status: string, style: string) => string;
   pagination: { currentPage: number, setCurrentPage: (page: number) => void; };
 }
 
@@ -24,9 +24,10 @@ const CurrentOrders: React.FC<Props> = ({
   selectedOrderId,
   onSelectOrder,
   onLoadOrders,
-  onChangeColorStatus,
   pagination,
 }) => {
+  const { useOrderStatusClass } = helpers();
+
   return (
     <Card className='px-5 pb-4 mt-5 min-h-[45vh] relative max-[850px]:hidden'>
       <div className='py-[14px] flex justify-between'>
@@ -78,8 +79,8 @@ const CurrentOrders: React.FC<Props> = ({
                   </div>
                 </div>
                 {/* STATUS ORDER */}
-                <div className={`flex font-semibold items-center gap-2 w-[91px] ${onChangeColorStatus(order.status, 'text')}`}>
-                  <span className={`size-3 rounded-full ${onChangeColorStatus(order.status, 'bg')}`}></span>
+                <div className={`flex font-semibold items-center gap-2 w-[91px] ${useOrderStatusClass(order.status, 'text')}`}>
+                  <span className={`size-3 rounded-full ${useOrderStatusClass(order.status, 'bg')}`}></span>
                   {order.status}
                 </div>
                 {/* ACTIONS */}
